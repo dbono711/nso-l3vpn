@@ -1,0 +1,337 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+	<devices xmlns="http://tail-f.com/ns/ncs">
+		<device>
+			<name>{$DEVICE-NAME}</name>
+			<config>
+
+				<vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
+					<vrf-list>
+						<name>{$VRF}</name>
+						<address-family>
+							<ipv4 when="{/inet = 'IPv4' or /inet = 'IPv4-IPv6'}">
+								<unicast>
+									<import>
+										<route-target>
+											<address-list>
+												<name>22351:{$VPN-ID}</name>
+											</address-list>
+										</route-target>
+									</import>
+									<export>
+										<route-target>
+											<address-list>
+												<name>22351:{$VPN-ID}</name>
+											</address-list>
+										</route-target>
+									</export>
+									<maximum>
+										<prefix>
+											<limit>{$MAX-ROUTES}</limit>
+											<mid-thresh>{$MAX-ROUTES-WARNING}</mid-thresh>
+										</prefix>
+									</maximum>
+								</unicast>
+							</ipv4>
+							<ipv6 when="{/inet = 'IPv6' or /inet = 'IPv4-IPv6'}">
+								<unicast>
+									<import>
+										<route-target>
+											<address-list>
+												<name>22351:{$VPN-ID}</name>
+											</address-list>
+										</route-target>
+									</import>
+									<export>
+										<route-target>
+											<address-list>
+												<name>22351:{$VPN-ID}</name>
+											</address-list>
+										</route-target>
+									</export>
+									<maximum>
+										<prefix>
+											<limit>{$MAX-ROUTES}</limit>
+											<mid-thresh>{$MAX-ROUTES-WARNING}</mid-thresh>
+										</prefix>
+									</maximum>
+								</unicast>
+							</ipv6>
+						</address-family>
+					</vrf-list>
+				</vrf>
+
+				<policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr">
+	        <name>{$SERVICE-ID}</name>
+	        <class>
+	          <class-default>
+	            <map>class-default</map>
+	            <police-rate-unit>
+	              <police>
+	                <rate>
+	                  <cir>{$CIR}</cir>
+	                  <cir-unit>mbps</cir-unit>
+	                  <conform-action>
+	                    <set>
+	                      <mpls>
+	                        <experimental>
+	                          <imposition>3</imposition>
+	                        </experimental>
+	                      </mpls>
+	                    </set>
+	                  </conform-action>
+	                  <exceed-action>
+	                    <drop/>
+	                  </exceed-action>
+	                </rate>
+	              </police>
+	            </police-rate-unit>
+	          </class-default>
+	        </class>
+      	</policy-map>
+
+				<interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+					<GigabitEthernet when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'true'}">
+						<id>{$INTERFACE-ID}</id>
+						<mtu>{$MTU}</mtu>
+						<service-policy>
+							<input>
+								<name>{$SERVICE-ID}</name>
+							</input>
+						</service-policy>
+						<vrf>{$SERVICE-ID}</vrf>
+						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+								<mask>{$IPV4-LOCAL-MASK}</mask>
+							</address>
+						</ipv4>
+						<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<prefix-list>
+									<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+								</prefix-list>
+							</address>
+						</ipv6>
+					</GigabitEthernet>
+					<GigabitEthernet-subinterface when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'false'}">
+						<GigabitEthernet>
+							<id>{$INTERFACE-ID}.{string(device[device-name=$DEVICE-NAME]/interface/GigabitEthernet-iosxr[interface-id=$INTERFACE-ID]/efp-id)}</id>
+							<description>NSO:{$CUSTOMER-NAME}_{$SERVICE-ID}</description>
+							<mtu>{$MTU}</mtu>
+							<encapsulation when="{$ENCAPSULATION = 'dot1q'}">
+								<dot1q>
+									<vlan-id>{$VLAN-ID}</vlan-id>
+									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
+								</dot1q>
+							</encapsulation>
+							<service-policy>
+								<input>
+									<name>{$SERVICE-ID}</name>
+								</input>
+							</service-policy>
+							<vrf>{$SERVICE-ID}</vrf>
+							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+									<mask>{$IPV4-LOCAL-MASK}</mask>
+								</address>
+							</ipv4>
+							<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<prefix-list>
+										<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+									</prefix-list>
+								</address>
+							</ipv6>
+						</GigabitEthernet>
+					</GigabitEthernet-subinterface>
+					<TenGigE when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'true'}">
+						<id>{$INTERFACE-ID}</id>
+						<mtu>{$MTU}</mtu>
+						<service-policy>
+							<input>
+								<name>{$SERVICE-ID}</name>
+							</input>
+						</service-policy>
+						<vrf>{$SERVICE-ID}</vrf>
+						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+								<mask>{$IPV4-LOCAL-MASK}</mask>
+							</address>
+						</ipv4>
+						<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<prefix-list>
+									<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+								</prefix-list>
+							</address>
+						</ipv6>
+					</TenGigE>
+					<TenGigE-subinterface when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'false'}">
+						<TenGigE>
+							<id>{$INTERFACE-ID}.{string(device[device-name=$DEVICE-NAME]/interface/TenGigabitEthernet-iosxr[interface-id=$INTERFACE-ID]/efp-id)}</id>
+							<description>NSO:{$CUSTOMER-NAME}_{$SERVICE-ID}</description>
+							<mtu>{$MTU}</mtu>
+							<encapsulation when="{$ENCAPSULATION = 'dot1q'}">
+								<dot1q>
+									<vlan-id>{$VLAN-ID}</vlan-id>
+									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
+								</dot1q>
+							</encapsulation>
+							<service-policy>
+								<input>
+									<name>{$SERVICE-ID}</name>
+								</input>
+							</service-policy>
+							<vrf>{$SERVICE-ID}</vrf>
+							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+									<mask>{$IPV4-LOCAL-MASK}</mask>
+								</address>
+							</ipv4>
+							<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<prefix-list>
+										<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+									</prefix-list>
+								</address>
+							</ipv6>
+						</TenGigE>
+					</TenGigE-subinterface>
+				</interface>
+
+				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
+					<bgp>
+						<bgp-no-instance>
+							<id>22351</id>
+							<neighbor-group when="{$BGP-ENABLED = 'TRUE'}">
+								<name>{$SERVICE-ID}</name>
+								<remote-as>{$BGP-NEIGHBOR-ASN}</remote-as>
+								<address-family>
+									<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+										<unicast>
+											<route-policy>
+												<direction>in</direction>
+												<name>{$BGP-ROUTE-POLICY-IN}</name>
+											</route-policy>
+											<route-policy>
+												<direction>out</direction>
+												<name>{$BGP-ROUTE-POLICY-OUT}</name>
+											</route-policy>
+											<soft-reconfiguration>
+												<inbound>
+													<type>always</type>
+												</inbound>
+											</soft-reconfiguration>
+										</unicast>
+									</ipv4>
+									<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+										<unicast>
+											<route-policy>
+												<direction>in</direction>
+												<name>{$BGP-ROUTE-POLICY-IN}</name>
+											</route-policy>
+											<route-policy>
+												<direction>out</direction>
+												<name>{$BGP-ROUTE-POLICY-OUT}</name>
+											</route-policy>
+											<soft-reconfiguration>
+												<inbound>
+													<type>always</type>
+												</inbound>
+											</soft-reconfiguration>
+										</unicast>
+									</ipv6>
+								</address-family>
+							</neighbor-group>
+							<vrf>
+								<name>{$SERVICE-ID}</name>
+								<rd>{$RD}</rd>
+								<timers>
+									<bgp>
+										<keepalive>30</keepalive>
+										<holdtime>90</holdtime>
+									</bgp>
+								</timers>
+								<address-family>
+									<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+										<unicast>
+											<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'static'}">
+												<static />
+											</redistribute>
+											<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'connected'}">
+												<connected />
+											</redistribute>
+											<as-path-loopcheck>
+												<out>disable</out>
+											</as-path-loopcheck>
+										</unicast>
+									</ipv4>
+									<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+										<unicast>
+											<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'static'}">
+												<static />
+											</redistribute>
+											<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'connected'}">
+												<connected />
+											</redistribute>
+										</unicast>
+									</ipv6>
+								</address-family>
+								<neighbor when="{$BGP-ENABLED = 'TRUE' and ($INET = 'IPv4' or $INET = 'IPv4-IPv6')}">
+									<id>{$IPv4-BGP-NEIGHBOR}</id>
+									<use>
+										<neighbor-group>{$SERVICE-ID}</neighbor-group>
+									</use>
+									<password when="{$BGP-NEIGHBOR-PASSWORD}">
+										<enc-type>clear</enc-type>
+										<password>{$BGP-NEIGHBOR-PASSWORD}</password>
+									</password>
+								</neighbor>
+								<neighbor when="{$BGP-ENABLED = 'TRUE' and ($INET = 'IPv6' or $INET = 'IPv4-IPv6')}">
+									<id>{$IPv6-BGP-NEIGHBOR}</id>
+									<use>
+										<neighbor-group>{$SERVICE-ID}</neighbor-group>
+									</use>
+									<password when="{$BGP-NEIGHBOR-PASSWORD}">
+										<enc-type>clear</enc-type>
+										<password>{$BGP-NEIGHBOR-PASSWORD}</password>
+									</password>
+								</neighbor>
+							</vrf>
+						</bgp-no-instance>
+					</bgp>
+
+					<static when="{$STATIC-ENABLED = 'TRUE'}">
+						<vrf>
+							<name>{$SERVICE-ID}</name>
+							<address-family>
+								<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+									<unicast>
+										<routes-ip>
+											<net>{$IPV4-STATIC-DEST-PREFIX}</net>
+											<address>{$IPV4-STATIC-FORWARDING}</address>
+											<description>{$SERVICE-ID}</description>
+										</routes-ip>
+									</unicast>
+								</ipv4>
+								<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+									<unicast>
+										<routes-ip>
+											<net>{$IPV6-STATIC-DEST-PREFIX}</net>
+											<address>{$IPV6-STATIC-FORWARDING}</address>
+											<description>{$SERVICE-ID}</description>
+										</routes-ip>
+									</unicast>
+								</ipv6>
+							</address-family>
+						</vrf>
+					</static>
+				</router>
+
+			</config>
+		</device>
+	</devices>
+</config-template>

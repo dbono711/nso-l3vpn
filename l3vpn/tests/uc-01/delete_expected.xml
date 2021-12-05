@@ -1,0 +1,134 @@
+<dry-run-result xmlns='http://tail-f.com/ns/rest/dry-run'>
+    <result-xml>
+        <local-node>
+            <data>
+                <devices xmlns="http://tail-f.com/ns/ncs">
+                    <device>
+                        <name>iosxr-0</name>
+                        <config>
+                            <vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <vrf-list xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                    <name>Mickey_Mouse</name>
+                                </vrf-list>
+                            </vrf>
+                            <policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                <name>Mickey_Mouse</name>
+                            </policy-map>
+                            <interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <TenGigE>
+                                    <id>2/0</id>
+                                    <mtu xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></mtu>
+                                    <service-policy>
+                                        <input>
+                                            <name xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></name>
+                                        </input>
+                                    </service-policy>
+                                    <vrf xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></vrf>
+                                    <ipv4>
+                                        <address>
+                                            <ip xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></ip>
+                                            <mask xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></mask>
+                                        </address>
+                                    </ipv4>
+                                </TenGigE>
+                            </interface>
+                            <router xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <bgp>
+                                    <bgp-no-instance xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                        <id>22351</id>
+                                    </bgp-no-instance>
+                                </bgp>
+                            </router>
+                        </config>
+                    </device>
+                    <device>
+                        <name>iosxr-1</name>
+                        <config>
+                            <vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <vrf-list xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                    <name>Mickey_Mouse</name>
+                                </vrf-list>
+                            </vrf>
+                            <policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                <name>Mickey_Mouse</name>
+                            </policy-map>
+                            <interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <TenGigE>
+                                    <id>2/0</id>
+                                    <mtu xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></mtu>
+                                    <service-policy>
+                                        <input>
+                                            <name xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></name>
+                                        </input>
+                                    </service-policy>
+                                    <vrf xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></vrf>
+                                    <ipv4>
+                                        <address>
+                                            <ip xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></ip>
+                                            <mask xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete"></mask>
+                                        </address>
+                                    </ipv4>
+                                </TenGigE>
+                            </interface>
+                            <router xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <bgp>
+                                    <bgp-no-instance xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                        <id>22351</id>
+                                    </bgp-no-instance>
+                                </bgp>
+                            </router>
+                        </config>
+                    </device>
+                    <device>
+                        <name>iosxr-2</name>
+                        <config>
+                            <vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <vrf-list xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                    <name>Mickey_Mouse</name>
+                                </vrf-list>
+                            </vrf>
+                            <policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                <name>Mickey_Mouse</name>
+                            </policy-map>
+                            <interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <GigabitEthernet-subinterface>
+                                    <GigabitEthernet xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                        <id>2/0.1</id>
+                                    </GigabitEthernet>
+                                </GigabitEthernet-subinterface>
+                            </interface>
+                            <router xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <bgp>
+                                    <bgp-no-instance xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                                        <id>22351</id>
+                                    </bgp-no-instance>
+                                </bgp>
+                            </router>
+                        </config>
+                    </device>
+                </devices>
+                <services xmlns="http://tail-f.com/ns/ncs">
+                    <l3vpn xmlns="http://dbono711/l3vpn" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                        <customer-name>Disneyland</customer-name>
+                        <service-id>Mickey Mouse</service-id>
+                        <vpn-id>1</vpn-id>
+                    </l3vpn>
+                </services>
+                <inventory xmlns="http://dbono711/inventory">
+                    <vpn xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                        <vpn-id>1</vpn-id>
+                    </vpn>
+                    <rd xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                        <rd-id>1:192.168.1.1:1</rd-id>
+                    </rd>
+                    <rd xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                        <rd-id>1:192.168.1.2:1</rd-id>
+                    </rd>
+                    <rd xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="delete">
+                        <rd-id>1:192.168.1.3:1</rd-id>
+                    </rd>
+                </inventory>
+            </data>
+        </local-node>
+    </result-xml>
+</dry-run-result>

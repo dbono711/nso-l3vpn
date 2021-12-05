@@ -1,0 +1,78 @@
+<dry-run-result xmlns='http://tail-f.com/ns/rest/dry-run'>
+    <result-xml>
+        <local-node>
+            <data>
+                <devices xmlns="http://tail-f.com/ns/ncs">
+                    <device>
+                        <name>iosxr-0</name>
+                        <config>
+                            <policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <name>Mickey_Mouse</name>
+                                <class>
+                                    <class-default>
+                                        <map>class-default</map>
+                                        <police-rate-unit>
+                                            <police>
+                                                <rate>
+                                                    <cir>456</cir>
+                                                </rate>
+                                            </police>
+                                        </police-rate-unit>
+                                    </class-default>
+                                </class>
+                            </policy-map>
+                        </config>
+                    </device>
+                    <device>
+                        <name>iosxr-1</name>
+                        <config>
+                            <policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <name>Mickey_Mouse</name>
+                                <class>
+                                    <class-default>
+                                        <map>class-default</map>
+                                        <police-rate-unit>
+                                            <police>
+                                                <rate>
+                                                    <cir>456</cir>
+                                                </rate>
+                                            </police>
+                                        </police-rate-unit>
+                                    </class-default>
+                                </class>
+                            </policy-map>
+                        </config>
+                    </device>
+                    <device>
+                        <name>iosxr-2</name>
+                        <config>
+                            <policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                                <name>Mickey_Mouse</name>
+                                <class>
+                                    <class-default>
+                                        <map>class-default</map>
+                                        <police-rate-unit>
+                                            <police>
+                                                <rate>
+                                                    <cir>456</cir>
+                                                </rate>
+                                            </police>
+                                        </police-rate-unit>
+                                    </class-default>
+                                </class>
+                            </policy-map>
+                        </config>
+                    </device>
+                </devices>
+                <services xmlns="http://tail-f.com/ns/ncs">
+                    <l3vpn xmlns="http://dbono711/l3vpn">
+                        <customer-name>Disneyland</customer-name>
+                        <service-id>Mickey Mouse</service-id>
+                        <vpn-id>1</vpn-id>
+                        <cir>456</cir>
+                    </l3vpn>
+                </services>
+            </data>
+        </local-node>
+    </result-xml>
+</dry-run-result>

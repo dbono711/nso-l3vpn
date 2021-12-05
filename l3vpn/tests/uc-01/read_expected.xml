@@ -1,0 +1,57 @@
+<l3vpn xmlns="http://dbono711/l3vpn" xmlns:l3vpn="http://dbono711/l3vpn" xmlns:ncs="http://tail-f.com/ns/ncs">
+  <customer-name>Disneyland</customer-name>
+  <service-id>Mickey Mouse</service-id>
+  <vpn-id>1</vpn-id>
+  <cir>123</cir>
+  <mtu>2000</mtu>
+  <inet>IPv4</inet>
+  <device>
+    <device-name>iosxr-0</device-name>
+    <redistribution-protocol>connected</redistribution-protocol>
+    <interface>
+      <TenGigabitEthernet-iosxr>
+        <interface-id>2/0</interface-id>
+        <port-mode>true</port-mode>
+        <ipv4-local-prefix>10.10.10.1/29</ipv4-local-prefix>
+      </TenGigabitEthernet-iosxr>
+    </interface>
+  </device>
+  <device>
+    <device-name>iosxr-1</device-name>
+    <redistribution-protocol>connected</redistribution-protocol>
+    <interface>
+      <TenGigabitEthernet-iosxr>
+        <interface-id>2/0</interface-id>
+        <port-mode>true</port-mode>
+        <ipv4-local-prefix>10.10.10.9/29</ipv4-local-prefix>
+      </TenGigabitEthernet-iosxr>
+    </interface>
+  </device>
+  <device>
+    <device-name>iosxr-2</device-name>
+    <redistribution-protocol>connected</redistribution-protocol>
+    <interface>
+      <GigabitEthernet-iosxr>
+        <interface-id>2/0</interface-id>
+        <port-mode>false</port-mode>
+        <encapsulation>dot1q</encapsulation>
+        <vlan-id>100</vlan-id>
+        <ipv4-local-prefix>10.10.10.17/29</ipv4-local-prefix>
+      </GigabitEthernet-iosxr>
+    </interface>
+  </device>
+  <modified>
+    <devices>iosxr-0</devices>
+    <devices>iosxr-1</devices>
+    <devices>iosxr-2</devices>
+  </modified>
+  <directly-modified>
+    <devices>iosxr-0</devices>
+    <devices>iosxr-1</devices>
+    <devices>iosxr-2</devices>
+  </directly-modified>
+  <device-list>iosxr-0</device-list>
+  <device-list>iosxr-1</device-list>
+  <device-list>iosxr-2</device-list>
+  <plan-location xmlns:l3vpn="http://dbono711/l3vpn" xmlns:ncs="http://tail-f.com/ns/ncs">/ncs:services/l3vpn:l3vpn[l3vpn:customer-name='Disneyland'][l3vpn:service-id='Mickey Mouse'][l3vpn:vpn-id='1']</plan-location>
+</l3vpn>

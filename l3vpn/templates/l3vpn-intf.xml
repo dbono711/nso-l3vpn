@@ -1,0 +1,124 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+	<devices xmlns="http://tail-f.com/ns/ncs">
+		<device>
+			<name>{$DEVICE-NAME}</name>
+			<config>
+
+				<interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+					<GigabitEthernet when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'true'}">
+						<id>{$INTERFACE-ID}</id>
+						<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
+						<mtu>{$MTU}</mtu>
+						<service-policy>
+							<input>
+								<name>{$SERVICE-ID}</name>
+							</input>
+						</service-policy>
+						<vrf>{$VRF}</vrf>
+						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+								<mask>{$IPV4-LOCAL-MASK}</mask>
+							</address>
+						</ipv4>
+						<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<prefix-list>
+									<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+								</prefix-list>
+							</address>
+						</ipv6>
+					</GigabitEthernet>
+					<GigabitEthernet-subinterface when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'false'}">
+						<GigabitEthernet>
+							<id>{$INTERFACE-ID}.{string(device[device-name=$DEVICE-NAME]/interface[name=$INTERFACE-ID]/efp-id)}</id>
+							<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
+							<mtu>{$MTU}</mtu>
+							<encapsulation when="{$ENCAPSULATION = 'dot1q'}">
+								<dot1q>
+									<vlan-id>{$VLAN-ID}</vlan-id>
+									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
+								</dot1q>
+							</encapsulation>
+							<service-policy>
+								<input>
+									<name>{$SERVICE-ID}</name>
+								</input>
+							</service-policy>
+							<vrf>{$SERVICE-ID}</vrf>
+							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+									<mask>{$IPV4-LOCAL-MASK}</mask>
+								</address>
+							</ipv4>
+							<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<prefix-list>
+										<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+									</prefix-list>
+								</address>
+							</ipv6>
+						</GigabitEthernet>
+					</GigabitEthernet-subinterface>
+					<TenGigE when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'true'}">
+						<id>{$INTERFACE-ID}</id>
+						<mtu>{$MTU}</mtu>
+						<service-policy>
+							<input>
+								<name>{$SERVICE-ID}</name>
+							</input>
+						</service-policy>
+						<vrf>{$SERVICE-ID}</vrf>
+						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+								<mask>{$IPV4-LOCAL-MASK}</mask>
+							</address>
+						</ipv4>
+						<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+							<address>
+								<prefix-list>
+									<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+								</prefix-list>
+							</address>
+						</ipv6>
+					</TenGigE>
+					<TenGigE-subinterface when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'false'}">
+						<TenGigE>
+							<id>{$INTERFACE-ID}.{string(device[device-name=$DEVICE-NAME]/interface/TenGigabitEthernet-iosxr[interface-id=$INTERFACE-ID]/efp-id)}</id>
+							<description>NSO:{$CUSTOMER-NAME}_{$SERVICE-ID}</description>
+							<mtu>{$MTU}</mtu>
+							<encapsulation when="{$ENCAPSULATION = 'dot1q'}">
+								<dot1q>
+									<vlan-id>{$VLAN-ID}</vlan-id>
+									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
+								</dot1q>
+							</encapsulation>
+							<service-policy>
+								<input>
+									<name>{$SERVICE-ID}</name>
+								</input>
+							</service-policy>
+							<vrf>{$SERVICE-ID}</vrf>
+							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
+									<mask>{$IPV4-LOCAL-MASK}</mask>
+								</address>
+							</ipv4>
+							<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+								<address>
+									<prefix-list>
+										<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
+									</prefix-list>
+								</address>
+							</ipv6>
+						</TenGigE>
+					</TenGigE-subinterface>
+				</interface>
+
+			</config>
+		</device>
+	</devices>
+</config-template>
