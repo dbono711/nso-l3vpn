@@ -18,7 +18,6 @@ def xpath_eval(node, xpath):
 def get_device(root, pe_path, log):
     log.info(f'Device Keypath: {pe_path}')
     dev_name = cd(root, f'{pe_path}/device-name')
-    log.info(f'get_device: Device {dev_name}')
     return ServiceDevice(root, dev_name, log)
 
 
@@ -47,11 +46,11 @@ class ServiceDevice:
 
     def _xr_if_list(self):
         if_list = []
-        for intf_type in ['GigabitEthernet', 'TenGigE', 'Loopback', 'Bundle-Ether']:
+        for intf_type in ['GigabitEthernet', 'TenGigE', 'Loopback']:
             for intf in cd(self._device, f'config/cisco-ios-xr:interface/{intf_type}'):
                 if_list.append(f'{intf_type}{intf.id}')
-                self._log.info(f'Device._ios_if_list: {if_list[-1]}')
-        self._log.info(f'Device._ios_if_list: returning {if_list}')
+                self._log.info(f'Device._iosxr_if_list: {if_list[-1]}')
+        self._log.info(f'Device._iosxr_if_list: returning {if_list}')
         return if_list
 
     def _ios_if_list(self):
@@ -67,7 +66,7 @@ class ServiceDevice:
         if_list = []
         for intf in cd(self._device, 'config/junos:configuration/interfaces/interface'):
             if_list.append(intf.name)
-            self._log.info(f'Device._ios_if_list: {if_list[-1]}')
+            self._log.info(f'Device._junos_if_list: {if_list[-1]}')
         return if_list
 
 
@@ -89,7 +88,6 @@ class InterfaceCompletion(Action):
             device = get_device(root, site_keypath, self.log)
 
             for intf in device.intf_list:
-                self.log.info(f'intersect_intf_list: intf {intf}')
                 completion_list.append((0, intf, ' '))
 
         else:

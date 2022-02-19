@@ -37,14 +37,14 @@
 									<import>
 										<route-target>
 											<address-list>
-												<name>22351:{$VPN-ID}</name>
+												<name>{$AS-NUMBER}:{$VPN-ID}</name>
 											</address-list>
 										</route-target>
 									</import>
 									<export>
 										<route-target>
 											<address-list>
-												<name>22351:{$VPN-ID}</name>
+												<name>{$AS-NUMBER}:{$VPN-ID}</name>
 											</address-list>
 										</route-target>
 									</export>

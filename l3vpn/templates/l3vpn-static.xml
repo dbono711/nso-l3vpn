@@ -1,0 +1,38 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+	<devices xmlns="http://tail-f.com/ns/ncs">
+		<device>
+			<name>{$DEVICE-NAME}</name>
+			<config>
+
+				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
+					<static>
+						<vrf>
+							<name>{$SERVICE-ID}</name>
+							<address-family>
+								<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+									<unicast>
+										<routes-ip>
+											<net>{$IPV4-DEST-PREFIX}</net>
+											<address>{$IPV4-FORWARDING}</address>
+											<description>{$SERVICE-ID}</description>
+										</routes-ip>
+									</unicast>
+								</ipv4>
+								<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+									<unicast>
+										<routes-ip>
+											<net>{$IPV6-DEST-PREFIX}</net>
+											<address>{$IPV6-FORWARDING}</address>
+											<description>{$SERVICE-ID}</description>
+										</routes-ip>
+									</unicast>
+								</ipv6>
+							</address-family>
+						</vrf>
+					</static>
+				</router>
+
+			</config>
+		</device>
+	</devices>
+</config-template>

@@ -1,5 +1,5 @@
 module l3vpn {
-
+  yang-version 1.1;
   namespace "http://dbono711/l3vpn";
   prefix l3vpn;
 
@@ -9,14 +9,20 @@ module l3vpn {
   import tailf-ncs { prefix ncs; }
   import tailf-ned-cisco-ios-xr { prefix iosxr; }
 
+  organization
+   "Darren Bono";
+
+   contact
+    "darren.bono@att.net";
+
   description
-    "A sample service packages for orchestrating MPLS Layer3 VPN (L3VPN) services";
+    "NSO service packages for orchestrating MPLS Layer3 VPN (L3VPN) services";
 
   revision 2021-10-18 {
     description "Initial revision";
   }
 
-  grouping interface-grouping {
+  grouping interface {
     leaf cir {
       tailf:info "Committed Information Rate (Mbps) for interface policer";
       type uint32;
@@ -28,7 +34,6 @@ module l3vpn {
       type uint32 {
         range 1500..9000;
       }
-      default 1500;
     }
 
     leaf port-mode {
@@ -73,10 +78,10 @@ module l3vpn {
     }
   }
 
-  grouping bgp-neighbor-grouping {
+  grouping bgp-neighbor {
     leaf bgp-neighbor-password {
-      tailf:suppress-echo true;
       tailf:info "BGP neighbor password";
+      tailf:suppress-echo true;
       type tailf:aes-cfb-128-encrypted-string {
         tailf:info "Password, minimum of 8 characters";
       }
@@ -182,7 +187,7 @@ module l3vpn {
             type string;
           }
 
-          uses interface-grouping;
+          uses interface;
         }
 
         container ce-routing {
@@ -192,7 +197,7 @@ module l3vpn {
           container static {
             tailf:info "Static Routes";
             presence "true";
-            list ipv4-static-destination-prefix {
+            list ipv4-destination-prefix {
               tailf:info "Destination Prefix";
               when "(../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6')";
               key ipv4-prefix;
@@ -202,14 +207,14 @@ module l3vpn {
                 type inet:ipv4-prefix;
               }
 
-              leaf-list ipv4-static-forwarding {
+              leaf-list ipv4-forwarding {
                 tailf:info "Static route next-hop";
                 min-elements 1;
                 type inet:ipv4-address;
               }
             }
 
-            list ipv6-static-destination-prefix {
+            list ipv6-destination-prefix {
               tailf:info "Destination Prefix";
               when "(../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6')";
               key ipv6-prefix;
@@ -219,7 +224,7 @@ module l3vpn {
                 type inet:ipv6-prefix;
               }
 
-              leaf ipv6-static-forwarding {
+              leaf ipv6-forwarding {
                 tailf:info "Static route next-hop";
                 mandatory true;
                 type inet:ipv6-address;
@@ -259,7 +264,7 @@ module l3vpn {
                 type inet:ipv4-address;
               }
 
-              uses bgp-neighbor-grouping;
+              uses bgp-neighbor;
             }
 
             list ipv6-neighbor {
@@ -272,7 +277,7 @@ module l3vpn {
                 type inet:ipv6-address;
               }
 
-              uses bgp-neighbor-grouping;
+              uses bgp-neighbor;
             }
           }
         }

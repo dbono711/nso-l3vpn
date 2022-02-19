@@ -31,10 +31,10 @@
 					</GigabitEthernet>
 					<GigabitEthernet-subinterface when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'false'}">
 						<GigabitEthernet>
-							<id>{$INTERFACE-ID}.{string(device[device-name=$DEVICE-NAME]/interface[name=$INTERFACE-ID]/efp-id)}</id>
+							<id>{$INTERFACE-ID}.{device[device-name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
 							<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
 							<mtu>{$MTU}</mtu>
-							<encapsulation when="{$ENCAPSULATION = 'dot1q'}">
+							<encapsulation when="{$PORT-MODE = 'false'}">
 								<dot1q>
 									<vlan-id>{$VLAN-ID}</vlan-id>
 									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
@@ -45,7 +45,7 @@
 									<name>{$SERVICE-ID}</name>
 								</input>
 							</service-policy>
-							<vrf>{$SERVICE-ID}</vrf>
+							<vrf>{$VRF}</vrf>
 							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
 								<address>
 									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
@@ -69,7 +69,7 @@
 								<name>{$SERVICE-ID}</name>
 							</input>
 						</service-policy>
-						<vrf>{$SERVICE-ID}</vrf>
+						<vrf>{$VRF}</vrf>
 						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
 							<address>
 								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
@@ -86,10 +86,10 @@
 					</TenGigE>
 					<TenGigE-subinterface when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'false'}">
 						<TenGigE>
-							<id>{$INTERFACE-ID}.{string(device[device-name=$DEVICE-NAME]/interface/TenGigabitEthernet-iosxr[interface-id=$INTERFACE-ID]/efp-id)}</id>
+							<id>{$INTERFACE-ID}.{device[device-name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
 							<description>NSO:{$CUSTOMER-NAME}_{$SERVICE-ID}</description>
 							<mtu>{$MTU}</mtu>
-							<encapsulation when="{$ENCAPSULATION = 'dot1q'}">
+							<encapsulation when="{$PORT-MODE = 'false'}">
 								<dot1q>
 									<vlan-id>{$VLAN-ID}</vlan-id>
 									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
@@ -100,7 +100,7 @@
 									<name>{$SERVICE-ID}</name>
 								</input>
 							</service-policy>
-							<vrf>{$SERVICE-ID}</vrf>
+							<vrf>{$VRF}</vrf>
 							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
 								<address>
 									<ip>{$IPV4-LOCAL-ADDRESS}</ip>

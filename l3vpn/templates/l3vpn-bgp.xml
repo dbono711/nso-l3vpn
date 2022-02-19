@@ -1,0 +1,85 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+	<devices xmlns="http://tail-f.com/ns/ncs">
+		<device>
+			<name>{$DEVICE-NAME}</name>
+			<config>
+
+				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
+					<bgp>
+						<bgp-no-instance>
+							<id>{$AS-NUMBER}</id>
+							<!-- <neighbor-group when="{$BGP-ENABLED = 'TRUE'}"> -->
+							<neighbor-group>
+								<name>{$SERVICE-ID}</name>
+								<remote-as>{$BGP-NEIGHBOR-ASN}</remote-as>
+								<address-family>
+									<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+										<unicast>
+											<route-policy>
+												<direction>in</direction>
+												<name>{$BGP-ROUTE-POLICY-IN}</name>
+											</route-policy>
+											<route-policy>
+												<direction>out</direction>
+												<name>{$BGP-ROUTE-POLICY-OUT}</name>
+											</route-policy>
+											<soft-reconfiguration>
+												<inbound>
+													<type>always</type>
+												</inbound>
+											</soft-reconfiguration>
+										</unicast>
+									</ipv4>
+									<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+										<unicast>
+											<route-policy>
+												<direction>in</direction>
+												<name>{$BGP-ROUTE-POLICY-IN}</name>
+											</route-policy>
+											<route-policy>
+												<direction>out</direction>
+												<name>{$BGP-ROUTE-POLICY-OUT}</name>
+											</route-policy>
+											<soft-reconfiguration>
+												<inbound>
+													<type>always</type>
+												</inbound>
+											</soft-reconfiguration>
+										</unicast>
+									</ipv6>
+								</address-family>
+							</neighbor-group>
+							<vrf>
+								<name>{$SERVICE-ID}</name>
+								<rd>{$RD}</rd>
+								<!-- <neighbor when="{$BGP-ENABLED = 'TRUE' and ($INET = 'IPv4' or $INET = 'IPv4-IPv6')}"> -->
+								<neighbor when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+									<id>{$IPv4-BGP-NEIGHBOR}</id>
+									<use>
+										<neighbor-group>{$SERVICE-ID}</neighbor-group>
+									</use>
+									<password when="{$BGP-NEIGHBOR-PASSWORD}">
+										<enc-type>clear</enc-type>
+										<password>{$BGP-NEIGHBOR-PASSWORD}</password>
+									</password>
+								</neighbor>
+								<!-- <neighbor when="{$BGP-ENABLED = 'TRUE' and ($INET = 'IPv6' or $INET = 'IPv4-IPv6')}"> -->
+								<neighbor when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+									<id>{$IPv6-BGP-NEIGHBOR}</id>
+									<use>
+										<neighbor-group>{$SERVICE-ID}</neighbor-group>
+									</use>
+									<password when="{$BGP-NEIGHBOR-PASSWORD}">
+										<enc-type>clear</enc-type>
+										<password>{$BGP-NEIGHBOR-PASSWORD}</password>
+									</password>
+								</neighbor>
+							</vrf>
+						</bgp-no-instance>
+					</bgp>
+				</router>
+
+			</config>
+		</device>
+	</devices>
+</config-template>
