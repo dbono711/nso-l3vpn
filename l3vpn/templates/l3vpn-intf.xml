@@ -5,6 +5,8 @@
 			<config>
 
 				<interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+
+					<!-- gigabit ethernet interface configuration -->
 					<GigabitEthernet when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'true'}">
 						<id>{$INTERFACE-ID}</id>
 						<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
@@ -29,12 +31,14 @@
 							</address>
 						</ipv6>
 					</GigabitEthernet>
+					
+					<!-- gigabit ethernet sub-interface configuration -->
 					<GigabitEthernet-subinterface when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'false'}">
 						<GigabitEthernet>
-							<id>{$INTERFACE-ID}.{device[device-name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
+							<id>{$INTERFACE-ID}.{provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
 							<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
 							<mtu>{$MTU}</mtu>
-							<encapsulation when="{$PORT-MODE = 'false'}">
+							<encapsulation>
 								<dot1q>
 									<vlan-id>{$VLAN-ID}</vlan-id>
 									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
@@ -61,8 +65,11 @@
 							</ipv6>
 						</GigabitEthernet>
 					</GigabitEthernet-subinterface>
+					
+					<!-- tengigabit ethernet interface configuration -->
 					<TenGigE when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'true'}">
 						<id>{$INTERFACE-ID}</id>
+						<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
 						<mtu>{$MTU}</mtu>
 						<service-policy>
 							<input>
@@ -84,12 +91,14 @@
 							</address>
 						</ipv6>
 					</TenGigE>
+					
+					<!-- tengigabit ethernet sub-interface configuration -->
 					<TenGigE-subinterface when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'false'}">
 						<TenGigE>
-							<id>{$INTERFACE-ID}.{device[device-name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
-							<description>NSO:{$CUSTOMER-NAME}_{$SERVICE-ID}</description>
+							<id>{$INTERFACE-ID}.{provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
+							<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
 							<mtu>{$MTU}</mtu>
-							<encapsulation when="{$PORT-MODE = 'false'}">
+							<encapsulation>
 								<dot1q>
 									<vlan-id>{$VLAN-ID}</vlan-id>
 									<second-dot1q>{$INNER-VLAN-ID}</second-dot1q>
@@ -117,7 +126,6 @@
 						</TenGigE>
 					</TenGigE-subinterface>
 				</interface>
-
 			</config>
 		</device>
 	</devices>

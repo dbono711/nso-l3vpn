@@ -4,10 +4,10 @@
 import ncs
 import re
 
-from ncs.application import Service
 from l3vpn.completion import InterfaceCompletion
-from l3vpn.network import Network
 from l3vpn.l3vpn import L3vpn
+from l3vpn.network import Network
+from ncs.application import Service
 
 
 class ServiceCallbacks(Service):
@@ -23,23 +23,16 @@ class ServiceCallbacks(Service):
     def cb_pre_modification(self, tctx, op, kp, root, proplist):
         """Docstring Missing."""
         self.log.info('Service premod(service=', kp, ')')
-
-        # Nothing to do for a 'Delete' operation
-        if op == 2:
-            return
+        if op == 2: return # Nothing to do for 'Delete' operation
 
         self.service = ncs.maagic.cd(root, kp)
         network = Network(self.log, root, self.service)
-        for device in self.service.device:
+        for device in self.service.provider_edge.device:
             for intf in device.interface:
-                self.log.info(
-                    f'Checking interface resources on {device.device_name} against our service')
-                intf_type, intf_id = re.split(r'(^.*\B)', intf.name)[1:]
                 if not intf.port_mode and not intf.efp_id:
-                    self.log.info(
-                        f'Interface {intf.name} on {device.device_name} requires a sub-interface ID')
-                    intf.efp_id = network.get_next_subintf_id(
-                        device.device_name, intf)
+                    self.log.info(f'Interface {intf.name} on {device.name} requires a sub-interface ID')
+                    intf_type = network.get_intf_type_and_id(intf.name)[0]
+                    intf.efp_id = network.get_next_subintf_id(device.name, intf_type)
 
 
 # ---------------------------------------------

@@ -1,9 +1,6 @@
 # The order of packages is significant as there are dependencies between
 # the packages. Typically generated namespaces are used by other packages.
-PACKAGES = \
-	utils \
-	inventory \
-	l3vpn
+PACKAGES = l3vpn
 
 ALL_PACKAGES=$(PACKAGES)
 

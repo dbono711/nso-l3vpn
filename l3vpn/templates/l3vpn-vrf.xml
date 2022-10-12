@@ -1,9 +1,11 @@
+<!-- /services/l3vpn:l3vpn[customer-name=''][service-id=''] -->
 <config-template xmlns="http://tail-f.com/ns/config/1.0">
 	<devices xmlns="http://tail-f.com/ns/ncs">
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
 
+				<!-- vrf global configuration -->
 				<vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<vrf-list>
 						<name>{$VRF}</name>
@@ -60,6 +62,7 @@
 					</vrf-list>
 				</vrf>
 
+				<!-- vrf bgp configuration -->
 				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<bgp>
 						<bgp-no-instance>
@@ -68,7 +71,8 @@
 								<name>{$VRF}</name>
 								<rd>{$RD}</rd>
 								<address-family>
-									<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+									<!-- <ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}"> -->
+									<ipv4 when="{/inet = 'IPv4' or /inet = 'IPv4-IPv6'}">
 										<unicast>
 											<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'static'}">
 												<static />
@@ -78,7 +82,8 @@
 											</redistribute>
 										</unicast>
 									</ipv4>
-									<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+									<!-- <ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}"> -->
+									<ipv6 when="{/inet = 'IPv6' or /inet = 'IPv4-IPv6'}">
 										<unicast>
 											<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'static'}">
 												<static />
@@ -93,7 +98,6 @@
 						</bgp-no-instance>
 					</bgp>
 				</router>
-
 			</config>
 		</device>
 	</devices>

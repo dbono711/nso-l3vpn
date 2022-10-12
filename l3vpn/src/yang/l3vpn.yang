@@ -16,7 +16,7 @@ module l3vpn {
     "darren.bono@att.net";
 
   description
-    "NSO service packages for orchestrating MPLS Layer3 VPN (L3VPN) services";
+    "NSO service package for basic MPLS Layer 3 VPN (L3VPN) services";
 
   revision 2021-10-18 {
     description "Initial revision";
@@ -24,7 +24,7 @@ module l3vpn {
 
   grouping interface {
     leaf cir {
-      tailf:info "Committed Information Rate (Mbps) for interface policer";
+      tailf:info "Committed Information Rate (Mbps) for interface policy";
       type uint32;
       default 1;
     }
@@ -49,7 +49,7 @@ module l3vpn {
     }
 
     leaf-list vlan-id {
-      tailf:info "Service encapsulation VLAN-ID";
+      tailf:info "Service encapsulation VLAN ID";
       when "../port-mode = 'false'";
       min-elements 1;
       type uint16 {
@@ -58,7 +58,7 @@ module l3vpn {
     }
 
     leaf-list inner-vlan-id {
-      tailf:info "Service encapsulation inner VLAN-ID";
+      tailf:info "Service encapsulation inner VLAN ID";
       when "../vlan-id";
       type uint16 {
         range "1 .. 4094";
@@ -67,13 +67,13 @@ module l3vpn {
 
     leaf ipv4-local-prefix {
       tailf:info "IPv4 address of the local interface";
-      when "../../../inet = 'IPv4' or ../../../inet = 'IPv4-IPv6'";
+      when "../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6'";
       type tailf:ipv4-address-and-prefix-length;
     }
 
     leaf ipv6-local-prefix {
       tailf:info "IPv6 address of the local interface";
-      when "../../../inet = 'IPv6' or ../../../inet = 'IPv4-IPv6'";
+      when "../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6'";
       type tailf:ipv6-address-and-prefix-length;
     }
   }
@@ -90,7 +90,7 @@ module l3vpn {
 
   augment /ncs:services {
     list l3vpn {
-      tailf:info "L3VPN Service";
+      tailf:info "MPLS Layer 3 Virtual Private Network (VPN) Services";
       description "mpls l3vpn service package";
       key "customer-name service-id";
 
@@ -111,29 +111,23 @@ module l3vpn {
       }
 
       leaf vpn-id {
-        tailf:info "Virtual Private Network (VPN) identifier";
+        tailf:info "VPN identifier - used to derive RT and RD values";
         mandatory true;
         type uint16;
       }
 
-      leaf as-number {
-        tailf:info "Provider ASN for the MPLS VPN";
-        mandatory true;
-        type uint32;
-      }
-
       leaf inet {
         tailf:info "Address family supported by the MPLS VPN";
-        mandatory true;
         type enumeration {
           enum IPv4;
           enum IPv6;
           enum IPv4-IPv6;
         }
+        default "IPv4";
       }
 
       leaf max-routes {
-        tailf:info "The maximum number of routes the MPLS L3VPN should accept";
+        tailf:info "The maximum number of routes the MPLS VPN should accept";
         type uint16 {
           tailf:info "< 1 - 50000 >";
           range "1..50000";
@@ -142,7 +136,7 @@ module l3vpn {
       }
 
       leaf max-routes-warning {
-        tailf:info "The threshold percentage for producing warning for 'max-routes'";
+        tailf:info "The threshold (%) for producing a warning for 'max-routes'";
         type uint8 {
           tailf:info "< 1 - 100 >";
           range "1..100";
@@ -150,134 +144,109 @@ module l3vpn {
         default 80;
       }
 
-      list device {
-        tailf:info "Provider Edge";
-        min-elements 2;
-        key device-name;
+      container provider-edge {
+        tailf:info "Provider Edge (PE) configuration";
 
-        leaf device-name {
-          tailf:info "Device name";
-          must "/ncs:devices/ncs:device[ncs:name=current()/../device-name]/ncs:device-type/ncs:cli/ncs:ned-id='cisco-iosxr-cli-7.33:cisco-iosxr-cli-7.33'" {
-            error-message "Service currently only supports IOS-XR";
-          }
-          type leafref {
-            path "/ncs:devices/ncs:device/ncs:name";
-          }
+        leaf asn {
+          tailf:info "Autonomous System Number (ASN) for entire MPLS provider domain";
+          mandatory true;
+          type inet:as-number;
         }
 
-        leaf-list redistribution {
-          tailf:info "Redistribution protocol's for BGP";
-          min-elements 1;
-          type enumeration {
-            enum static;
-            enum connected;
-          }
-        }
-
-        list interface {
-          tailf:info "Provide Edge interface";
-          min-elements 1;
+        list device {
+          tailf:info "PE device";
+          min-elements 2;
           key name;
-
+        
+          // TODO: implement support for JUNOS devices
           leaf name {
-            tailf:info "Interface name";
-            tailf:cli-completion-actionpoint l3vpn-interface-name {
-              tailf:cli-completion-id "provideredge-";
+            type leafref {
+              path "/ncs:devices/ncs:device/ncs:name";
             }
-            type string;
+            must "contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'iosxr')" {
+              error-message "Provider Edge devices must be IOS-XR";
+            }
           }
 
-          uses interface;
-        }
+          // TODO: implement model for import routing policy (IOS-XR)
+          // leaf import-route-policy {}
 
-        container ce-routing {
-          tailf:info "CE Routing";
-          presence "true";
+          // TODO: implement model for export routing policy (IOS-XR)
+          // leaf export-route-policy {}
 
-          container static {
-            tailf:info "Static Routes";
+          // TODO: consider scenario's for providing label-allocation-mode as an option
+          // leaf label-allocation {}
+
+          leaf-list redistribute {
+            tailf:info "Redistribution protocols";
+            type enumeration {
+              enum static;
+              enum connected;
+            }
+          }
+
+          list interface {
+            tailf:info "PE interface";
+            min-elements 1;
+            key name;
+            
+            leaf name {
+              tailf:cli-completion-actionpoint l3vpn-interface-name {
+                tailf:cli-completion-id "provideredge-";
+              }
+              type string;
+            }
+            
+            uses interface;
+          }
+
+          container ce-routing {
+            tailf:info "CE Routing";
             presence "true";
-            list ipv4-destination-prefix {
-              tailf:info "Destination Prefix";
-              when "(../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6')";
-              key ipv4-prefix;
 
-              leaf ipv4-prefix {
-                tailf:info "Destination for static route";
-                type inet:ipv4-prefix;
+            container static {
+              tailf:info "Static Routes";
+              presence "true";
+
+              list ipv4-destination-prefix {
+                tailf:info "Destination Prefix";
+                when "(../../../../../inet = 'IPv4' or ../../../../../inet = 'IPv4-IPv6')";
+                key ipv4-prefix;
+
+                leaf ipv4-prefix {
+                  tailf:info "Destination for static route";
+                  type inet:ipv4-prefix;
+                }
+
+                leaf-list ipv4-forwarding {
+                  tailf:info "Static route next-hop";
+                  min-elements 1;
+                  type inet:ipv4-address;
+                }
+
+                // TODO: add option for metric
+                // leaf metric {}
+
+                // TODO: add option for BFD Fast-Detection
+                // leaf bfd-fast-detect {}
               }
-
-              leaf-list ipv4-forwarding {
-                tailf:info "Static route next-hop";
-                min-elements 1;
-                type inet:ipv4-address;
+              
+              list ipv6-destination-prefix {
+                tailf:info "Destination Prefix";
+                when "(../../../../../inet = 'IPv6' or ../../../../../inet = 'IPv4-IPv6')";
+                key ipv6-prefix;
+                
+                leaf ipv6-prefix {
+                  tailf:info "Destination for static route";
+                  type inet:ipv6-prefix;
+                }
+                
+                leaf ipv6-forwarding {
+                  tailf:info "Static route next-hop";
+                  mandatory true;
+                  type inet:ipv6-address;
+                }
               }
-            }
-
-            list ipv6-destination-prefix {
-              tailf:info "Destination Prefix";
-              when "(../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6')";
-              key ipv6-prefix;
-
-              leaf ipv6-prefix {
-                tailf:info "Destination for static route";
-                type inet:ipv6-prefix;
-              }
-
-              leaf ipv6-forwarding {
-                tailf:info "Static route next-hop";
-                mandatory true;
-                type inet:ipv6-address;
-              }
-            }
-          }
-
-          container bgp {
-            tailf:info "BGP";
-            presence true;
-
-            leaf asn {
-              tailf:info "Neighbor Autonomous System Number (ASN)";
-              mandatory true;
-              type inet:as-number;
-            }
-
-            leaf route-policy-in {
-              tailf:info "Inbound BGP Route Policy";
-              type string;
-              default "PASS";
-            }
-
-            leaf route-policy-out {
-              tailf:info "Outbound BGP Route Policy";
-              type string;
-              default "PASS";
-            }
-
-            list ipv4-neighbor {
-              tailf:info "IPv4 BGP neighbor";
-              when "../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6'";
-              key bgp-neighbor-address;
-
-              leaf bgp-neighbor-address {
-                tailf:info "IPv4 address of the remote neighbor";
-                type inet:ipv4-address;
-              }
-
-              uses bgp-neighbor;
-            }
-
-            list ipv6-neighbor {
-              tailf:info "IPv6 BGP neighbor";
-              when "../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6'";
-              key bgp-neighbor-address;
-
-              leaf bgp-neighbor-address {
-                tailf:info "IPv6 address of the remote neighbor";
-                type inet:ipv6-address;
-              }
-
-              uses bgp-neighbor;
             }
           }
         }
@@ -285,3 +254,54 @@ module l3vpn {
     }
   }
 }
+
+      //     container bgp {
+      //       tailf:info "BGP";
+      //       presence true;
+
+      //       leaf asn {
+      //         tailf:info "Customer Edge Autonomous System Number (ASN)";
+      //         mandatory true;
+      //         type inet:as-number;
+      //       }
+
+      //       leaf route-policy-in {
+      //         tailf:info "Inbound BGP Route Policy";
+      //         type string;
+      //         default "PASS";
+      //       }
+
+      //       leaf route-policy-out {
+      //         tailf:info "Outbound BGP Route Policy";
+      //         type string;
+      //         default "PASS";
+      //       }
+
+      //       list ipv4-neighbor {
+      //         tailf:info "IPv4 BGP neighbor";
+      //         when "../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6'";
+      //         key bgp-neighbor-address;
+
+      //         leaf bgp-neighbor-address {
+      //           tailf:info "IPv4 address of the remote neighbor";
+      //           type inet:ipv4-address;
+      //         }
+
+      //         uses bgp-neighbor;
+      //       }
+
+      //       list ipv6-neighbor {
+      //         tailf:info "IPv6 BGP neighbor";
+      //         when "../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6'";
+      //         key bgp-neighbor-address;
+
+      //         leaf bgp-neighbor-address {
+      //           tailf:info "IPv6 address of the remote neighbor";
+      //           type inet:ipv6-address;
+      //         }
+
+      //         uses bgp-neighbor;
+      //       }
+      //     }
+      //   }
+      // }

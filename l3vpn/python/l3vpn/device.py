@@ -19,6 +19,6 @@ class Device:
 
     def get_device_ned_id(self, device_name):
         """Docstring Missing."""
-        dev_path = f"/ncs:devices/ncs:device/{device_name}"
-        dev = ncs.maagic.cd(self.root, dev_path)
+        dev = ncs.maagic.cd(self.root, f'/ncs:devices/ncs:device/{device_name}')
+
         return ncs.application.get_ned_id(dev)
