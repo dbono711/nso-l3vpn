@@ -17,13 +17,15 @@
 							</input>
 						</service-policy>
 						<vrf>{$VRF}</vrf>
-						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+						<!-- <ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}"> -->
+						<ipv4 when="{/inet = 'IPv4' or /inet = 'IPv4-IPv6'}">
 							<address>
 								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
 								<mask>{$IPV4-LOCAL-MASK}</mask>
 							</address>
 						</ipv4>
-						<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+						<!-- <ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}"> -->
+						<ipv6 when="{/inet = 'IPv6' or /inet = 'IPv4-IPv6'}">
 							<address>
 								<prefix-list>
 									<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
@@ -35,7 +37,7 @@
 					<!-- gigabit ethernet sub-interface configuration -->
 					<GigabitEthernet-subinterface when="{$INTERFACE-TYPE = 'GigabitEthernet' and $PORT-MODE = 'false'}">
 						<GigabitEthernet>
-							<id>{$INTERFACE-ID}.{provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
+							<id>{$INTERFACE-ID}.{/provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
 							<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
 							<mtu>{$MTU}</mtu>
 							<encapsulation>
@@ -50,13 +52,15 @@
 								</input>
 							</service-policy>
 							<vrf>{$VRF}</vrf>
-							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+							<!-- <ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}"> -->
+							<ipv4 when="{/inet = 'IPv4' or /inet = 'IPv4-IPv6'}">
 								<address>
 									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
 									<mask>{$IPV4-LOCAL-MASK}</mask>
 								</address>
 							</ipv4>
-							<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+							<!-- <ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}"> -->
+							<ipv6 when="{/inet = 'IPv6' or /inet = 'IPv4-IPv6'}">
 								<address>
 									<prefix-list>
 										<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
@@ -77,13 +81,15 @@
 							</input>
 						</service-policy>
 						<vrf>{$VRF}</vrf>
-						<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+						<!-- <ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}"> -->
+						<ipv4 when="{/inet = 'IPv4' or /inet = 'IPv4-IPv6'}">
 							<address>
 								<ip>{$IPV4-LOCAL-ADDRESS}</ip>
 								<mask>{$IPV4-LOCAL-MASK}</mask>
 							</address>
 						</ipv4>
-						<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+						<!-- <ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}"> -->
+						<ipv6 when="{/inet = 'IPv6' or /inet = 'IPv4-IPv6'}">
 							<address>
 								<prefix-list>
 									<prefix>{$IPV6-LOCAL-PREFIX}</prefix>
@@ -95,7 +101,7 @@
 					<!-- tengigabit ethernet sub-interface configuration -->
 					<TenGigE-subinterface when="{$INTERFACE-TYPE = 'TenGigE' and $PORT-MODE = 'false'}">
 						<TenGigE>
-							<id>{$INTERFACE-ID}.{provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
+							<id>{$INTERFACE-ID}.{/provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</id>
 							<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
 							<mtu>{$MTU}</mtu>
 							<encapsulation>
@@ -110,13 +116,15 @@
 								</input>
 							</service-policy>
 							<vrf>{$VRF}</vrf>
-							<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
+							<!-- <ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}"> -->
+							<ipv4 when="{/inet = 'IPv4' or /inet = 'IPv4-IPv6'}">
 								<address>
 									<ip>{$IPV4-LOCAL-ADDRESS}</ip>
 									<mask>{$IPV4-LOCAL-MASK}</mask>
 								</address>
 							</ipv4>
-							<ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}">
+							<!-- <ipv6 when="{$INET = 'IPv6' or $INET = 'IPv4-IPv6'}"> -->
+							<ipv6 when="{/inet = 'IPv6' or /inet = 'IPv4-IPv6'}">
 								<address>
 									<prefix-list>
 										<prefix>{$IPV6-LOCAL-PREFIX}</prefix>

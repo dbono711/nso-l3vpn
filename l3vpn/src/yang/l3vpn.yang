@@ -10,9 +10,9 @@ module l3vpn {
   import tailf-ned-cisco-ios-xr { prefix iosxr; }
 
   organization
-   "Darren Bono";
+    "Darren Bono";
 
-   contact
+  contact
     "darren.bono@att.net";
 
   description
@@ -90,7 +90,7 @@ module l3vpn {
 
   augment /ncs:services {
     list l3vpn {
-      tailf:info "MPLS Layer 3 Virtual Private Network (VPN) Services";
+      tailf:info "MPLS Layer 3 Virtual Private Network (L3VPN) Services";
       description "mpls l3vpn service package";
       key "customer-name service-id";
 
@@ -129,8 +129,8 @@ module l3vpn {
       leaf max-routes {
         tailf:info "The maximum number of routes the MPLS VPN should accept";
         type uint16 {
-          tailf:info "< 1 - 50000 >";
-          range "1..50000";
+          tailf:info "< 1 - 5000 >";
+          range "1..5000";
         }
         default 100;
       }
@@ -148,17 +148,16 @@ module l3vpn {
         tailf:info "Provider Edge (PE) configuration";
 
         leaf asn {
-          tailf:info "Autonomous System Number (ASN) for entire MPLS provider domain";
+          tailf:info "Autonomous System Number (ASN) for the MPLS Provider domain";
           mandatory true;
           type inet:as-number;
         }
 
         list device {
-          tailf:info "PE device";
-          min-elements 2;
+          tailf:info "Provider Edge device";
+          // min-elements 2;
           key name;
         
-          // TODO: implement support for JUNOS devices
           leaf name {
             type leafref {
               path "/ncs:devices/ncs:device/ncs:name";
@@ -167,15 +166,6 @@ module l3vpn {
               error-message "Provider Edge devices must be IOS-XR";
             }
           }
-
-          // TODO: implement model for import routing policy (IOS-XR)
-          // leaf import-route-policy {}
-
-          // TODO: implement model for export routing policy (IOS-XR)
-          // leaf export-route-policy {}
-
-          // TODO: consider scenario's for providing label-allocation-mode as an option
-          // leaf label-allocation {}
 
           leaf-list redistribute {
             tailf:info "Redistribution protocols";
@@ -201,9 +191,9 @@ module l3vpn {
           }
 
           container ce-routing {
-            tailf:info "CE Routing";
+            tailf:info "Customer Edge Routing";
             presence "true";
-
+            
             container static {
               tailf:info "Static Routes";
               presence "true";
@@ -223,12 +213,6 @@ module l3vpn {
                   min-elements 1;
                   type inet:ipv4-address;
                 }
-
-                // TODO: add option for metric
-                // leaf metric {}
-
-                // TODO: add option for BFD Fast-Detection
-                // leaf bfd-fast-detect {}
               }
               
               list ipv6-destination-prefix {
@@ -241,12 +225,61 @@ module l3vpn {
                   type inet:ipv6-prefix;
                 }
                 
-                leaf ipv6-forwarding {
+                leaf-list ipv6-forwarding {
                   tailf:info "Static route next-hop";
-                  mandatory true;
+                  min-elements 1;
                   type inet:ipv6-address;
                 }
               }
+            }
+          }
+
+          container bgp {
+            tailf:info "Border Gateway Protocol";
+            presence true;
+
+            leaf asn {
+              tailf:info "Customer Edge Autonomous System Number (ASN)";
+              mandatory true;
+              type inet:as-number;
+            }
+
+            leaf route-policy-in {
+              tailf:info "Inbound BGP Route Policy";
+              type string;
+              default "PASS";
+            }
+
+            leaf route-policy-out {
+              tailf:info "Outbound BGP Route Policy";
+              type string;
+              default "PASS";
+            }
+
+            list ipv4-neighbor {
+              tailf:info "IPv4 BGP neighbor";
+              when "../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6'";
+              key bgp-neighbor-address;
+
+              leaf bgp-neighbor-address {
+                tailf:info "IPv4 address of the BGP neighbor";
+                type inet:ipv4-address;
+              }
+
+              uses bgp-neighbor;
+            }
+
+            list ipv6-neighbor {
+              tailf:info "IPv6 BGP neighbor";
+              when "../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6'";
+              key bgp-neighbor-address;
+
+              leaf bgp-neighbor-address {
+                tailf:info "IPv6 address of the BGP neighbor";
+                type inet:ipv6-address;
+              }
+
+              uses bgp-neighbor;
             }
           }
         }
@@ -254,54 +287,3 @@ module l3vpn {
     }
   }
 }
-
-      //     container bgp {
-      //       tailf:info "BGP";
-      //       presence true;
-
-      //       leaf asn {
-      //         tailf:info "Customer Edge Autonomous System Number (ASN)";
-      //         mandatory true;
-      //         type inet:as-number;
-      //       }
-
-      //       leaf route-policy-in {
-      //         tailf:info "Inbound BGP Route Policy";
-      //         type string;
-      //         default "PASS";
-      //       }
-
-      //       leaf route-policy-out {
-      //         tailf:info "Outbound BGP Route Policy";
-      //         type string;
-      //         default "PASS";
-      //       }
-
-      //       list ipv4-neighbor {
-      //         tailf:info "IPv4 BGP neighbor";
-      //         when "../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6'";
-      //         key bgp-neighbor-address;
-
-      //         leaf bgp-neighbor-address {
-      //           tailf:info "IPv4 address of the remote neighbor";
-      //           type inet:ipv4-address;
-      //         }
-
-      //         uses bgp-neighbor;
-      //       }
-
-      //       list ipv6-neighbor {
-      //         tailf:info "IPv6 BGP neighbor";
-      //         when "../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6'";
-      //         key bgp-neighbor-address;
-
-      //         leaf bgp-neighbor-address {
-      //           tailf:info "IPv6 address of the remote neighbor";
-      //           type inet:ipv6-address;
-      //         }
-
-      //         uses bgp-neighbor;
-      //       }
-      //     }
-      //   }
-      // }

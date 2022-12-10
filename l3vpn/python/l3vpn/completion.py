@@ -18,7 +18,7 @@ def xpath_eval(node, xpath):
 
 def get_device(root, pe_path, log):
     """Docstring Missing."""
-    log.info(f'Device Keypath: {pe_path}')
+    # log.info(f'Device Keypath: {pe_path}')
     dev_name = cd(root, f'{pe_path}/name')
     return ServiceDevice(root, dev_name, log)
 
