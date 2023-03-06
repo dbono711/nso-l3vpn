@@ -4,7 +4,7 @@
 import ipaddress
 import re
 
-from l3vpn.device import Device
+from .device import Device
 from ncs.maagic import cd, ListElement
 
 
@@ -35,6 +35,7 @@ class Network(Device):
         'GigabitEthernet0/0/0/12', this method will return ['GigabitEthernet', '0/0/0/12']
 
         Args:
+            deviceName (str): Network device hostname
             intfName (str): The complete network interface name
 
         Returns:
@@ -43,7 +44,54 @@ class Network(Device):
         ned = self.get_device_ned_id(deviceName)
         if "cisco-iosxr" in ned:
             return re.split(r'(^.*\B)', intfName)[1:]
-    
+
+    def get_next_subintf_id(self, deviceName: str, intfType: str) -> int:
+        """Allocates the next available sub-interface ID on an interface
+
+        Args:
+            deviceName (str): Network device hostname
+            intfType (str): The interface type (i.e., 'GigabitEthernet')
+
+        Returns:
+            int: next available sub-interface ID
+        """
+        ned = self.get_device_ned_id(deviceName)
+        if "cisco-iosxr" in ned:
+            sub_intf_list = cd(self.root, f'/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}-subinterface/{intfType}')
+
+        id_list = [int(x.id.split('.')[-1]) for x in sub_intf_list]
+        self.log.info(f'Assigning sub-interface ID {(subt_intf_id := list(set(range(1, 2**16)) - set(id_list))[0])}')
+
+        return subt_intf_id
+
+    def get_loopback_ip(self, deviceName: str, loopbackNum: int) -> str:
+        """Returns the IPv4 address of a given loopback number on a given network device
+
+        Args:
+            deviceName (str): Network device hostname
+            loopbackNum (int): The number of the loopback interface on the network device
+
+        Raises:
+            Exception: An IPv4 address for the given loopback number does not exist on the network device
+            Exception: The loopback number itself does not exist on the network device
+
+        Returns:
+            str: IPv4 Loopback address
+        """        
+        ned = self.get_device_ned_id(deviceName)
+        if "cisco-iosxr" in ned:
+            loopback_intf_list = cd(self.root, f'/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/Loopback')
+
+        if loopbackNum in loopback_intf_list:
+            loopback_ip = loopback_intf_list[loopbackNum].ipv4.address.ip
+
+            if loopback_ip is None:
+                raise Exception(f'An IPv4 address for Loopback{loopbackNum} does not exist on {deviceName}')
+            else:
+                return loopback_ip
+        else:
+            raise Exception(f'Loopback{loopbackNum} does not exist on {deviceName}')
+
     def validate_interface(self, deviceName: str, intf: ListElement, intfType: str, intfId: str) -> None:
         """Validates that a given interface on a device does not;
             a) contain any sub-interfaces if the interface is configured for port-mode
@@ -69,6 +117,17 @@ class Network(Device):
         else:
             self.__check_dot1q_encapsulation(sub_intf_list, deviceName, intfType, intf.vlan_id.as_list())
 
+    def get_ip_and_mask(self, prefix: str) -> list[str, str]:
+        """_summary_
+
+        Args:
+            prefix (str): _description_
+
+        Returns:
+            list[str, str]: _description_
+        """        
+        return ipaddress.ip_interface(prefix).with_netmask.split('/')
+
 
 
     def __check_no_sub_interfaces_exist(self, subIntfIdList: list[str], deviceName: str, intfType: str, intfId: str) -> None:
@@ -93,45 +152,15 @@ class Network(Device):
             if any(item in vlan_id_list for item in i.encapsulation.dot1q.vlan_id.as_list()):
                 raise Exception(f'{intf_type}{i.id} on device {device_name} already has a sub-interface configured with encapsulation {vlan_id_list}')
 
-    def __filter_sub_interfaces(self, sub_intf_list, intf_id):
+    def __filter_sub_interfaces(self, subIntfList: list[str], intfId: str) -> list[str]:
         """Docstring Missing."""
         sub_intf_id_list = []
-        for i in sub_intf_list:
-            if i.id.split(".")[0] == intf_id:
+        for i in subIntfList:
+            if i.id.split(".")[0] == intfId:
                 self.log.info(f'Filter is keeping sub-interface: {i.id}')
                 sub_intf_id_list.append(i)
 
         return sub_intf_id_list
-    
-    def get_ip_and_mask(self, ip_prefix):
-        """Docstring Missing."""
-        return ipaddress.ip_interface(ip_prefix).with_netmask.split('/')
-
-    def get_loopback_ip(self, device_name, loopback_num):
-        """Docstring Missing."""
-        ned = self.get_device_ned_id(device_name)
-        if "cisco-iosxr" in ned:
-            loopback_intf_list = cd(self.root, f'/devices/device{{{device_name}}}/config/cisco-ios-xr:interface/Loopback')
-
-        if loopback_num in loopback_intf_list:
-            loopback_ip = loopback_intf_list[loopback_num].ipv4.address.ip
-            if loopback_ip is None:
-                raise Exception(f'An IPv4 address for Loopback0 does not exist on {device_name}')
-            else:
-                return loopback_ip
-        else:
-            raise Exception(f'Loopback0 does not exist on {device_name}')
-
-    def get_next_subintf_id(self, device_name, intf_type):
-        """Docstring Missing."""
-        ned = self.get_device_ned_id(device_name)
-        if "cisco-iosxr" in ned:
-            sub_intf_list = cd(self.root, f'/devices/device{{{device_name}}}/config/cisco-ios-xr:interface/{intf_type}-subinterface/{intf_type}')
-
-        id_list = [int(x.id.split('.')[-1]) for x in sub_intf_list]
-        self.log.info(f'Assigning sub-interface ID {(efp_id := list(set(range(1, 2**16)) - set(id_list))[0])}')
-
-        return efp_id
 
     def check_ip_host_in_network(self, host, network):
         """Docstring Missing."""

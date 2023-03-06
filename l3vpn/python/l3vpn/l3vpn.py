@@ -4,8 +4,8 @@
 import ipaddress
 import ncs
 
+from .network import Network
 from itertools import product
-from l3vpn.network import Network
 from ncs.maagic import ListElement
 from ncs.template import Template,Variables
 
