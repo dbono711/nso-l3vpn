@@ -43,8 +43,8 @@ module l3vpn {
     }
 
     leaf efp-id {
-      tailf:info "Ethernet Flow Point ID";
       tailf:display-when "false()";
+      tailf:info "Ethernet Flow Point ID";
       type uint16;
     }
 
@@ -79,7 +79,7 @@ module l3vpn {
   }
 
   grouping bgp-neighbor {
-    leaf bgp-neighbor-password {
+    leaf password {
       tailf:info "BGP neighbor password";
       tailf:suppress-echo true;
       type tailf:aes-cfb-128-encrypted-string {
@@ -155,7 +155,7 @@ module l3vpn {
 
         list device {
           tailf:info "Provider Edge device";
-          // min-elements 2;
+          min-elements 2;
           key name;
         
           leaf name {
@@ -232,54 +232,54 @@ module l3vpn {
                 }
               }
             }
-          }
 
-          container bgp {
-            tailf:info "Border Gateway Protocol";
-            presence true;
+            container bgp {
+              tailf:info "Border Gateway Protocol";
+              presence true;
 
-            leaf asn {
-              tailf:info "Customer Edge Autonomous System Number (ASN)";
-              mandatory true;
-              type inet:as-number;
-            }
-
-            leaf route-policy-in {
-              tailf:info "Inbound BGP Route Policy";
-              type string;
-              default "PASS";
-            }
-
-            leaf route-policy-out {
-              tailf:info "Outbound BGP Route Policy";
-              type string;
-              default "PASS";
-            }
-
-            list ipv4-neighbor {
-              tailf:info "IPv4 BGP neighbor";
-              when "../../../../inet = 'IPv4' or ../../../../inet = 'IPv4-IPv6'";
-              key bgp-neighbor-address;
-
-              leaf bgp-neighbor-address {
-                tailf:info "IPv4 address of the BGP neighbor";
-                type inet:ipv4-address;
+              leaf asn {
+                tailf:info "Customer Edge Autonomous System Number (ASN)";
+                mandatory true;
+                type inet:as-number;
               }
 
-              uses bgp-neighbor;
-            }
-
-            list ipv6-neighbor {
-              tailf:info "IPv6 BGP neighbor";
-              when "../../../../inet = 'IPv6' or ../../../../inet = 'IPv4-IPv6'";
-              key bgp-neighbor-address;
-
-              leaf bgp-neighbor-address {
-                tailf:info "IPv6 address of the BGP neighbor";
-                type inet:ipv6-address;
+              leaf route-policy-in {
+                tailf:info "Inbound BGP Route Policy";
+                type string;
+                default "PASS";
               }
 
-              uses bgp-neighbor;
+              leaf route-policy-out {
+                tailf:info "Outbound BGP Route Policy";
+                type string;
+                default "PASS";
+              }
+
+              list ipv4-neighbor {
+                tailf:info "IPv4 BGP neighbor";
+                when "(../../../../../inet = 'IPv4' or ../../../../../inet = 'IPv4-IPv6')";
+                key address;
+
+                leaf address {
+                  tailf:info "IPv4 address of the BGP neighbor";
+                  type inet:ipv4-address;
+                }
+
+                uses bgp-neighbor;
+              }
+
+              list ipv6-neighbor {
+                tailf:info "IPv6 BGP neighbor";
+                when "(../../../../../inet = 'IPv4' or ../../../../../inet = 'IPv4-IPv6')";
+                key address;
+
+                leaf address {
+                  tailf:info "IPv6 address of the BGP neighbor";
+                  type inet:ipv6-address;
+                }
+
+                uses bgp-neighbor;
+              }
             }
           }
         }

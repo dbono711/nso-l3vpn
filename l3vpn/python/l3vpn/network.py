@@ -60,7 +60,7 @@ class Network(Device):
             sub_intf_list = cd(self.root, f'/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}-subinterface/{intfType}')
 
         id_list = [int(x.id.split('.')[-1]) for x in sub_intf_list]
-        self.log.info(f'Assigning sub-interface ID {(subt_intf_id := list(set(range(1, 2**16)) - set(id_list))[0])}')
+        self.log.info(f'Assigning sub-interface ID {(subt_intf_id := list(set(range(1, 2**8)) - set(id_list))[0])}')
 
         return subt_intf_id
 
@@ -118,42 +118,79 @@ class Network(Device):
             self.__check_dot1q_encapsulation(sub_intf_list, deviceName, intfType, intf.vlan_id.as_list())
 
     def get_ip_and_mask(self, prefix: str) -> list[str, str]:
-        """_summary_
+        """Returns the IP address and netmask for a given IP prefix
 
         Args:
-            prefix (str): _description_
+            prefix (str): IPv4/IPv6 prefix in CIDR notation
 
         Returns:
-            list[str, str]: _description_
+            list[str, str]: IP address and netmask
         """        
         return ipaddress.ip_interface(prefix).with_netmask.split('/')
 
+    def check_ip_host_in_network(self, host: str, network: str) -> bool:
+        """Validate whether an IP host is contained within an IP network
 
+        Args:
+            host (str): IP host address
+            network (str): IP network to check within
+
+        Returns:
+            bool: Truthy statement on whether the host is contained within the network
+        """        """Docstring Missing."""
+        return ipaddress.ip_address(host) in ipaddress.ip_network(network)
 
     def __check_no_sub_interfaces_exist(self, subIntfIdList: list[str], deviceName: str, intfType: str, intfId: str) -> None:
-        """Docstring Missing."""
+        """Validate whether the existing interface we are trying to configure has any existing
+        sub-interfaces configured on it when we are attempting a port-based configuration
+
+        Args:
+            subIntfIdList (list[str]): List of sub-interface ID's
+            deviceName (str): Network device hostname
+            intfType (str): The interface type (i.e., 'GigabitEthernet')
+            intfId (str): The interface ID (i.e., '0/0/0/12')
+        """        
         self.log.info('Checking for sub-interface conflicts')
-        if len(sub_intf_id_list) > 0:
-            self.log.info(sub_intf_id_list)
-            raise Exception(f'{intf_type}{intf_id} on device {device_name} already has sub-interfaces configured, creating a "port-based" service is not allowed')
+        if len(subIntfIdList) > 0:
+            self.log.info(subIntfIdList)
+            raise Exception(f'{intfType}{intfId} on {deviceName} already has sub-interfaces configured, creating a "port-based" service is not allowed')
 
-    def __check_interface_no_ip_exists(self, intf_list, device_name, intf_type, intf_id):
-        """Docstring Missing."""
+    def __check_interface_no_ip_exists(self, intfList: list[str], deviceName: str, intfType: str, intfId: str) -> None:
+        """Validate that an existing list of interfaces does not already have an IP address configured
+
+        Args:
+            intfList (list[str]): List of interfaces on a network device
+            deviceName (str): Network device hostname
+            intfType (str): The interface type (i.e., 'GigabitEthernet')
+            intfId (str): The interface ID (i.e., '0/0/0/12')
+        """        
         self.log.info('Checking if interface has existing IP configuration')
-        if intf_list[intf_id].ipv4.address.ip is not None:
-            raise Exception(f'{intf_type}{intf_id} on device {device_name} already has an IPv4 address configured. Check to ensure it is not in use by another service')
-        if len(intf_list[intf_id].ipv6.address.prefix_list) > 0:
-            raise Exception(f'{intf_type}{intf_id} on device {device_name} already has an IPv6 address configured. Check to ensure it is not in use by another service')
+        if intfList[intfId].ipv4.address.ip is not None:
+            raise Exception(f'{intfType}{intfId} on {deviceName} already has an IPv4 address configured. Check to ensure it is not in use by another service')
+        if len(intfList[intfId].ipv6.address.prefix_list) > 0:
+            raise Exception(f'{intfType}{intfId} on {deviceName} already has an IPv6 address configured. Check to ensure it is not in use by another service')
 
-    def __check_dot1q_encapsulation(self, sub_intf_list, device_name, intf_type, vlan_id_list):
-        """Docstring Missing."""
+    def __check_dot1q_encapsulation(self, subIntfIdList: list[str], deviceName: str, intfType: str, vlanIdList: list[str]) -> None:
+        """Validate any existing dot1q encapsulation conflicts on a set of sub-interfaces
+
+        Args:
+            subIntfIdList (list[str]): List of sub-interface ID's
+            deviceName (str): Network device hostname
+            intfType (str): The interface type (i.e., 'GigabitEthernet')
+            vlanIdList (list[str]): List of VLAN ID's being checked against
+        """        
         self.log.info('Checking for VLAN encapsulation conflicts')
-        for i in sub_intf_list:
-            if any(item in vlan_id_list for item in i.encapsulation.dot1q.vlan_id.as_list()):
-                raise Exception(f'{intf_type}{i.id} on device {device_name} already has a sub-interface configured with encapsulation {vlan_id_list}')
+        for i in subIntfIdList:
+            if any(item in vlanIdList for item in i.encapsulation.dot1q.vlan_id.as_list()):
+                raise Exception(f'{intfType}{i.id} on {deviceName} already has a sub-interface configured with encapsulation {vlanIdList}')
 
     def __filter_sub_interfaces(self, subIntfList: list[str], intfId: str) -> list[str]:
-        """Docstring Missing."""
+        """Filter out configurable sub-interfaces from a list of sub-interfaces 
+
+        Args:
+            subIntfList (list[str]): List of sub-interfaces
+            intfId (str): The interface ID (i.e., '0/0/0/12')
+        """        
         sub_intf_id_list = []
         for i in subIntfList:
             if i.id.split(".")[0] == intfId:
@@ -161,7 +198,3 @@ class Network(Device):
                 sub_intf_id_list.append(i)
 
         return sub_intf_id_list
-
-    def check_ip_host_in_network(self, host, network):
-        """Docstring Missing."""
-        return ipaddress.ip_address(host) in ipaddress.ip_network(network)

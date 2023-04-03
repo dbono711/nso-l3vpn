@@ -1,13 +1,15 @@
 # -*- mode: python; python-indent: 4 -*-
 """Docstring Missing."""
 
-import ncs
+from ncs.log import Log
+from ncs.maagic import cd,Root,ListElement
+from ncs.application import get_ned_id
 
 
 class Device:
     """Docstring Missing."""
 
-    def __init__(self, log, root, service):
+    def __init__(self, log: Log, root: Root, service: ListElement) -> None:
         """Docstring Missing."""
         self.log = log
         self.root = root
@@ -34,6 +36,6 @@ class Device:
         Returns:
             str: Network Element Driver (NED) ID
         """        
-        device = ncs.maagic.cd(self.root, f'/ncs:devices/ncs:device/{deviceName}')
+        device = cd(self.root, f'/ncs:devices/ncs:device/{deviceName}')
 
-        return ncs.application.get_ned_id(device)
+        return get_ned_id(device)
