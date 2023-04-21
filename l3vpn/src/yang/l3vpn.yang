@@ -7,7 +7,6 @@ module l3vpn {
   import ietf-routing-types { prefix rt-types; }
   import tailf-common { prefix tailf; }
   import tailf-ncs { prefix ncs; }
-  import tailf-ned-cisco-ios-xr { prefix iosxr; }
 
   organization
     "Darren Bono";

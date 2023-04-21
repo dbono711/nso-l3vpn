@@ -13,7 +13,12 @@ class L3vpn(Network):
     """Docstring Missing."""
 
     def __setup_vrf(self, device: ListElement, base_vars: list[str]) -> None:
-        """Docstring missing."""
+        """Configure VRF routing instances
+
+        Args:
+            device (ListElement): Network device
+            base_vars (list[str]): Base variables
+        """        
         self.log.info('CONFIGURING VRF')
         template = Template(self.service)
         vars = Variables(base_vars)
@@ -26,7 +31,14 @@ class L3vpn(Network):
             template.apply('l3vpn-vrf', vars)
 
     def __setup_intf(self, device: ListElement, intf: ListElement, base_vars: list[str]) -> None:
-        """Docstring missing."""
+        """Configure network device interfaces. Validates that interfaces are compliant
+        with existing resources allocated for existing interfaces on the network device
+
+        Args:
+            device (ListElement): Network device
+            intf (ListElement): Interface list
+            base_vars (list[str]): Base variables
+        """        
         self.log.info('CONFIGURING INTERFACE: ', intf.name)
         template = Template(self.service)
         vars = Variables(base_vars)
@@ -64,7 +76,12 @@ class L3vpn(Network):
                     template.apply('l3vpn-intf', vars)
 
     def __setup_policy(self, intf: str, base_vars: list[str]) -> None:
-        """Docstring missing."""
+        """Configure policy
+
+        Args:
+            intf (str): Network device interface
+            base_vars (list[str]): Base variables
+        """        
         self.log.info('CONFIGURING POLICY FOR INTERFACE: ', intf.name)
         template_policy = Template(self.service)
         policy_vars = Variables(base_vars)
@@ -72,7 +89,15 @@ class L3vpn(Network):
         template_policy.apply('l3vpn-policy', policy_vars)
 
     def __setup_static_routing(self, device: ListElement, static: PresenceContainer, base_vars: list[str]) -> None:
-        """Docstring missing."""
+        """Configure CE static routing. For each static route, loop through all forwarding addresses, and subsequently through
+        each interface on the device to ensure that each forwarding address falls within at least one of the IPv4 networks 
+        configured on the device interfaces
+
+        Args:
+            device (ListElement): Network device
+            static (PresenceContainer): Static routing container
+            base_vars (list[str]): Base variables
+        """        
         self.log.info('CONFIGURING STATIC ROUTES')
         template_static = Template(self.service)
         static_vars = Variables(base_vars)
@@ -81,9 +106,7 @@ class L3vpn(Network):
         static_vars.add('IPV6-DEST-PREFIX', '')
         static_vars.add('IPV6-FORWARDING', '')
 
-        # for each static route, loop through all forwarding addresses, and subsequently through
-        # each interface on the device to ensure that each forwarding address falls within at
-        # least one of the IPv4 networks configured on the device interfaces
+        # IPv4
         for prefix, intf in product(static.ipv4_destination_prefix, device.interface):
             static_vars.add('IPV4-DEST-PREFIX', prefix.ipv4_prefix)
             for forwarding_address in prefix.ipv4_forwarding.as_list():
@@ -93,12 +116,13 @@ class L3vpn(Network):
                     if self.check_ip_host_in_network(forwarding_address, intf_network):
                         static_vars.add('IPV4-FORWARDING', forwarding_address)
                         template_static.apply('l3vpn-static', static_vars)
+                    
+                    # TODO: Exception needs to take into account having more than one interface per device as well as more than forwarding address per static route
+                    # else:
+                    #     raise Exception(f'The ipv4-forwarding address {forwarding_address} for ipv4-destination-prefix {prefix.ipv4_prefix} on {device.name} does not fall within {intf_network}')
 
-                    # TODO: Raise Exception; account for having more than one interface per device as well as more than forwarding address per static route
 
-        # for each static route, loop through all forwarding addresses, and subsequently through
-        # each interface on the device to ensure that each forwarding address falls within at
-        # least one of the IPv4 networks configured on the device interfaces
+        # IPv6
         for prefix in static.ipv6_destination_prefix:
             static_vars.add('IPV6-DEST-PREFIX', prefix.ipv6_prefix)
 
@@ -110,9 +134,19 @@ class L3vpn(Network):
                         if self.check_ip_host_in_network(forwarding_address, intf_network):
                             static_vars.add('IPV6-FORWARDING', forwarding_address)
                             template_static.apply('l3vpn-static', static_vars)
+                        
+                        # TODO: Exception needs to take into account having more than one interface per device as well as more than forwarding address per static route
+                        # else:
+                        #     raise Exception(f'The ipv4-forwarding address {forwarding_address} for ipv4-destination-prefix {prefix.ipv4_prefix} on {device.name} does not fall within {intf_network}')
 
     def __setup_bgp_routing(self, device: ListElement, bgp: PresenceContainer, base_vars: list[str]) -> None:
-        """Docstring missing."""
+        """Configure BGP CE Routing
+
+        Args:
+            device (ListElement): Network device
+            bgp (PresenceContainer): BGP routing container
+            base_vars (list[str]): Base variables
+        """        
         self.log.info('CONFIGURING BGP')
         template_bgp = Template(self.service)
         bgp_vars = Variables(base_vars)
@@ -146,7 +180,6 @@ class L3vpn(Network):
 
         for device in self.service.provider_edge.device:
             self.log.info('CONFIGURING DEVICE: ', device_name := device.name)
-            # rd = f'{self.get_loopback_ip(device.name, 0)}:{self.service.vpn_id}' # RFC4364 Type 1 Route Distinguisher Encoding
             base_vars.append(('RD', rd := f'{self.get_loopback_ip(device.name, 0)}:{self.service.vpn_id}'))
             base_vars.append(('DEVICE-NAME', device_name))
 
