@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """This module provides a class and a few functions for handling XML files within the Robot Framework."""
 
 from jinja2 import Template
@@ -7,6 +6,7 @@ from difflib import HtmlDiff, unified_diff
 from lxml import html as html_parser, etree
 from ipaddress import ip_interface
 from robot.libraries.BuiltIn import BuiltIn
+
 import re
 import os
 
@@ -53,26 +53,22 @@ class ServiceElement(etree.ElementBase):
 
         return super().xpath(_path, namespaces=namespaces, **kwargs)
 
-
 DEFAULT_PARSER = etree.XMLParser(remove_blank_text=True)
 DEFAULT_PARSER.set_element_class_lookup(
     etree.ElementDefaultClassLookup(element=ServiceElement)
 )
 
-
 def Service_Instance_Keystring(inst, key_nodes):
     """Returns a key string from the specified key xml nodes."""
-    keys = []
-    for key in key_nodes:
-        keys.append(inst.xpath(f'string(/{inst.package}/{key})'))
-    return str.join(',', keys)
+    keys = [inst.xpath(f'string(/{inst.package}/{key})') for key in key_nodes]
 
+    return str.join(',', keys)
 
 def normalize_xml(xml_string):
     """Normalize and pretty print an imput XML string."""
     tree = etree.fromstring(xml_string, DEFAULT_PARSER)
-    return etree.tostring(tree, pretty_print=True).decode("utf-8")
 
+    return etree.tostring(tree, pretty_print=True).decode("utf-8")
 
 def _html_add_css(html_diff):
     """Customizes the CSS of the HTML side by side comparison diff."""
@@ -100,21 +96,20 @@ def _html_add_css(html_diff):
     style_element.tag = 'style'
 
     html_diff.insert(0, style_element)
-    return html_parser.tostring(html_diff).decode('utf-8')
 
+    return html_parser.tostring(html_diff).decode('utf-8')
 
 def Render_Template(template_file, **kargs):
     """Returns a Jinja2 rendering of the specified template file and variables as a string."""
-    return Template(open(template_file).read()).render(**kargs)
 
+    return Template(open(template_file).read()).render(**kargs)
 
 def Validate_Response(received, expected):
     """Returns a boolean True or False based on whether the received XML matches the expected XML."""
     received = normalize_xml(received).splitlines()
     expected = normalize_xml(expected).splitlines()
 
-    for line in unified_diff(received, expected):
-
+    for _ in unified_diff(received, expected):
         builtin_scope = BuiltIn()
 
         test_name = builtin_scope.get_variable_value('${TEST NAME}')
@@ -125,13 +120,13 @@ def Validate_Response(received, expected):
         builtin_scope.log(f"{test_name} {crud_test}: Validate Response Failed", level='ERROR')
         builtin_scope.log(html_diff, html=True)
         builtin_scope.fail(f"{test_name} {crud_test}: Validate Response Failed")
-    return True
 
+    return True
 
 def Service_Instance(xml_string):
     """Parses the input string and returns an instance of the ServiceElement class."""
-    return etree.fromstring(xml_string, DEFAULT_PARSER)
 
+    return etree.fromstring(xml_string, DEFAULT_PARSER)
 
 def find_all(pattern, path):
     """Returns a list of strings containing files matching the input regex pattern."""
@@ -142,8 +137,8 @@ def find_all(pattern, path):
                 result.append(os.path.join(root, file))
             for dir in dirs:
                 result.extend(find_all(pattern, dir))
-    return result
 
+    return result
 
 def pp_xml(xmls):
     """Normalizes and pretty prints the test XML files in place."""

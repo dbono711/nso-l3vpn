@@ -1,0 +1,10 @@
+robotframework
+robotframework-requests
+Jinja2
+requests
+urllib3
+lxml
+charset-normalizer
+certifi
+idna
+MarkupSafe
