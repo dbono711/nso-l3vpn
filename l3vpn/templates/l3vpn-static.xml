@@ -3,11 +3,10 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
-
 				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<static>
 						<vrf>
-							<name>{$SERVICE-ID}</name>
+							<name>{$VRF}</name>
 							<address-family>
 								<ipv4 when="{$INET = 'IPv4' or $INET = 'IPv4-IPv6'}">
 									<unicast>
@@ -31,7 +30,6 @@
 						</vrf>
 					</static>
 				</router>
-
 			</config>
 		</device>
 	</devices>

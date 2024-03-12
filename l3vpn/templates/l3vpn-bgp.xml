@@ -3,7 +3,6 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
-
 				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<bgp>
 						<bgp-no-instance>
@@ -78,7 +77,6 @@
 						</bgp-no-instance>
 					</bgp>
 				</router>
-
 			</config>
 		</device>
 	</devices>

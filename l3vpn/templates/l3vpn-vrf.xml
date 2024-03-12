@@ -4,7 +4,6 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
-
 				<!-- vrf global configuration -->
 				<vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<vrf-list>

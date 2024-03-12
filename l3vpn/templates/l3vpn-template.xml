@@ -3,7 +3,6 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
-
 				<vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<vrf-list>
 						<name>{$VRF}</name>
@@ -330,7 +329,6 @@
 						</vrf>
 					</static>
 				</router>
-
 			</config>
 		</device>
 	</devices>

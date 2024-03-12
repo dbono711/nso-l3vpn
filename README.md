@@ -1,12 +1,15 @@
 # nso-l3vpn
+
 Cisco NSO service package for orchestrating [MPLS Layer 3 VPN (L3VPN)](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-9/lxvpn/configuration/guide/b-l3vpn-cg-asr9000-79x/implementing-mpls-layer-3-VPNs.html)* services on Cisco IOS-XR devices
 
 ***_NOTE:_ Not all product features for implementating MPLS L3VPN configuration on Cisco IOS-XR are implemented. Rather, this package provides a practical example of Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
 
 ## Overview
+
 A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) consists of a set of sites that are interconnected by means of an MPLS provider core network. At each customer site, one or more customer edge (CE) routers attach to one or more provider edge (PE) routers. This NSO service package provides the orchestration for MPLS L3VPN’s between Cisco IOS-XR Provider Edge (PE) networking devices.
 
 ## Features
+
 1. Support's the selection of a ```customer-name``` as a unique identifier for a service instance
     1. _NOTE:_ MUST have the ```/customers/customer``` list populated in NSO CDB
 2. Support's the manual entry of a ```service-id``` as a unique identifier for a service instance
@@ -30,17 +33,18 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
             1. Support's re-distribution of ```connected``` and/or ```static``` routes
 
 ## Assumptions
+
 * The Provider (P) core has already been configured to provide MPLS transport
 * The Provider Edge (PE) devices have already been configured to support MPLS L3VPN's
 
 ## Implementation
+
 Copy the ```l3vpn``` directory to your NSO runtime ```packages``` directory, and reload
 
-For example: 
+For example:
 
 ```cp -R l3vpn ~/nso/6.0-run/packages```
 
 ```ncs_cli -u admin```
 
 ```request packages reload```
-

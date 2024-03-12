@@ -3,7 +3,6 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
-
 				<interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
 
 					<!-- gigabit ethernet interface configuration -->
