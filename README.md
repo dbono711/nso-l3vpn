@@ -2,7 +2,7 @@
 
 Cisco NSO service package for orchestrating [MPLS Layer 3 VPN (L3VPN)](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-9/lxvpn/configuration/guide/b-l3vpn-cg-asr9000-79x/implementing-mpls-layer-3-VPNs.html)* services on Cisco IOS-XR devices
 
-***_NOTE:_ Not all product features for implementating MPLS L3VPN configuration on Cisco IOS-XR are implemented. Rather, this package provides a practical example of Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
+***_NOTE:_ Not all product features for implementating MPLS L3VPN configuration on Cisco IOS-XR are implemented. Rather, this package provides a common approach to Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
 
 ## Overview
 
@@ -11,7 +11,6 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
 ## Features
 
 1. Support's the selection of a ```customer-name``` as a unique identifier for a service instance
-    1. _NOTE:_ MUST have the ```/customers/customer``` list populated in NSO CDB
 2. Support's the manual entry of a ```service-id``` as a unique identifier for a service instance
 3. Support's the manual entry of a Virtual Private Network (VPN) identifier at the service level
     1. The ```vpn-id``` is used in automatically generating Route-Target (RT) and Route-Distinguisher (RD) values
@@ -23,7 +22,7 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
 7. Each service MUST consist of two (2) or more Provider Edge (PE)
     1. Support's Cisco IOS-XR Operating System
         1. VRF names adhere to Cisco IOS-XR special character and length (1..32 characters) limitations
-        2. Route-Distinguishers (RD’s) adhere to Type 1 encoding as noted in https://datatracker.ietf.org/doc/rfc4364/
+        2. Route-Distinguishers (RD’s) adhere to [Type 1 encoding](https://datatracker.ietf.org/doc/rfc4364/)
     2. Support's one (1) or more User-Network-Interfaces (UNI) on each Provider Edge (PE) device
         1. Provides the user with an existing list of interfaces on the PE device for selection
         2. Support's Static Routing as the Provider Edge (PE) to Customer Edge (CE) routing protocol
@@ -37,14 +36,41 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
 * The Provider (P) core has already been configured to provide MPLS transport
 * The Provider Edge (PE) devices have already been configured to support MPLS L3VPN's
 
-## Implementation
+## Installation
 
-Copy the ```l3vpn``` directory to your NSO runtime ```packages``` directory, and reload
+Copy the [l3vpn](l3vpn) directory to your NSO runtime ```packages``` directory, and reload
 
 For example:
 
-```cp -R l3vpn ~/nso/6.0-run/packages```
+```shell
+cp -R l3vpn ~/nso/6.0-run/packages
+ncs_cli -u admin
+request packages reload
+```
 
-```ncs_cli -u admin```
+## Example Service Instance
 
-```request packages reload```
+```shell
+
+# configure a customer to use since the model references the `/ncs:customers/ncs:customer` list
+set customers customer Disneyland status active
+
+# configure service
+set services l3vpn Disneyland service01 vpn-id 1
+set services l3vpn Disneyland service01 inet IPv4
+set services l3vpn Disneyland service01 max-routes 100
+set services l3vpn Disneyland service01 max-routes-warning 80
+set services l3vpn Disneyland service01 provider-edge asn 65000
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 redistribute [ static connected ]
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 interface GigabitEthernet2/0 cir 80
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 interface GigabitEthernet2/0 mtu 2000
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 interface GigabitEthernet2/0 port-mode true
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 interface GigabitEthernet2/0 ipv4-local-prefix 172.16.1.0/31
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 ce-routing
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 ce-routing static
+set services l3vpn Disneyland service01 provider-edge device iosxr-0 ce-routing static ipv4-destination-prefix 10.0.0.0/24 ipv4-forwarding [ 172.16.1.1 ]
+set services l3vpn Disneyland service01 provider-edge device iosxr-1 interface GigabitEthernet2/0 cir 80
+set services l3vpn Disneyland service01 provider-edge device iosxr-1 interface GigabitEthernet2/0 mtu 2000
+set services l3vpn Disneyland service01 provider-edge device iosxr-1 interface GigabitEthernet2/0 port-mode true
+set services l3vpn Disneyland service01 provider-edge device iosxr-1 interface GigabitEthernet2/0 ipv4-local-prefix 172.16.1.2/31
+```
