@@ -22,5 +22,9 @@ class PreMod(Network):
                     self.log.info(
                         f"Interface {intf.name} on {device.name} requires a sub-interface ID"
                     )
-                    intf_type = self.get_intf_type_and_id(device.name, intf.name)[0]
-                    intf.efp_id = self.get_next_subintf_id(device.name, intf_type)
+                    intf_type, intf_id = self.get_intf_type_and_id(
+                        device.name, intf.name
+                    )
+                    intf.efp_id = self.get_next_subintf_id(
+                        device.name, intf_type, intf_id
+                    )

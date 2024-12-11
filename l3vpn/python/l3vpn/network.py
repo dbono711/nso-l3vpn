@@ -57,10 +57,13 @@ class Network(Device):
             list[str, str]: A network interface split into type and ID
         """
         ned = self.get_device_ned_id(deviceName)
+        if "cisco-ios" in ned:
+            return re.split(r"(^.*\B)", intfName)[1:]
+
         if "cisco-iosxr" in ned:
             return re.split(r"(^.*\B)", intfName)[1:]
 
-    def get_next_subintf_id(self, deviceName: str, intfType: str) -> int:
+    def get_next_subintf_id(self, deviceName: str, intfType: str, intfId: str) -> int:
         """Allocates the next available sub-interface ID on an interface
 
         Args:
@@ -76,8 +79,17 @@ class Network(Device):
                 self.root,
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}-subinterface/{intfType}",
             )
+            id_list = [int(x.id.split(".")[-1]) for x in sub_intf_list]
 
-        id_list = [int(x.id.split(".")[-1]) for x in sub_intf_list]
+        elif "cisco-ios" in ned:
+            sub_intf_list = cd(
+                self.root,
+                f"/devices/device{{{deviceName}}}/config/ios:interface/{intfType}",
+            )
+            id_list = [
+                int(x.name.split(".")[-1]) for x in sub_intf_list if "." in x.name
+            ]
+
         self.log.info(
             f"Assigning sub-interface ID {(subt_intf_id := list(set(range(1, 2**8)) - set(id_list))[0])}"
         )
@@ -187,17 +199,28 @@ class Network(Device):
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/Loopback",
             )
 
-        if loopbackNum in loopback_intf_list:
-            loopback_ip = loopback_intf_list[loopbackNum].ipv4.address.ip
-
-            if loopback_ip is None:
-                raise Exception(
-                    f"An IPv4 address for Loopback{loopbackNum} does not exist on {deviceName}"
-                )
+            if loopbackNum in loopback_intf_list:
+                loopback_ip = loopback_intf_list[loopbackNum].ipv4.address.ip
             else:
-                return loopback_ip
-        else:
-            raise Exception(f"Loopback{loopbackNum} does not exist on {deviceName}")
+                raise Exception(f"Loopback{loopbackNum} does not exist on {deviceName}")
+
+        elif "cisco-ios" in ned:
+            loopback_intf_list = cd(
+                self.root,
+                f"/devices/device{{{deviceName}}}/config/ios:interface/Loopback",
+            )
+
+            if loopbackNum in loopback_intf_list:
+                loopback_ip = loopback_intf_list[loopbackNum].ip.address.primary.address
+            else:
+                raise Exception(f"Loopback{loopbackNum} does not exist on {deviceName}")
+
+        if loopback_ip is None:
+            raise Exception(
+                f"An IPv4 address for Loopback{loopbackNum} does not exist on {deviceName}"
+            )
+
+        return loopback_ip
 
     def validate_interface(
         self, deviceName: str, intf: ListElement, intfType: str, intfId: str
@@ -224,6 +247,8 @@ class Network(Device):
                 self.root,
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}-subinterface/{intfType}",
             )
+        elif "cisco-ios" in ned:
+            return None
 
         sub_intf_id_list = self.__filter_sub_interfaces(sub_intf_list, intfId)
         if intf.port_mode:

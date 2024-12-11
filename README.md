@@ -1,8 +1,8 @@
 # nso-l3vpn
 
-Cisco NSO service package for orchestrating [MPLS Layer 3 VPN (L3VPN)](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-9/lxvpn/configuration/guide/b-l3vpn-cg-asr9000-79x/implementing-mpls-layer-3-VPNs.html)* services on Cisco IOS-XR devices
+Cisco NSO service package for orchestrating MPLS Layer 3 VPN (L3VPN) services on Cisco IOS and IOS-XR devices
 
-***_NOTE:_ Not all product features for implementating MPLS L3VPN configuration on Cisco IOS-XR are implemented. Rather, this package provides a common approach to Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
+***_NOTE:_ Not all features for implementating MPLS L3VPN's are implemented. Rather, this package provides a common approach to Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
 
 ## Overview
 

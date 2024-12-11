@@ -3,6 +3,8 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
+
+				<!-- ios-xr interface configuration -->
 				<interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
 
 					<!-- gigabit ethernet interface configuration -->
@@ -132,6 +134,62 @@
 							</ipv6>
 						</TenGigE>
 					</TenGigE-subinterface>
+				</interface>
+
+				<!-- ios interface configuration -->
+				<interface xmlns="urn:ios">
+
+					<!-- ethernet interface configuration -->
+					<Ethernet when="{$INTERFACE-TYPE = 'Ethernet' and $PORT-MODE = 'true'}">
+						<name>{$INTERFACE-ID}</name>
+						<description>NSO:{$CUSTOMER-NAME}:{$SERVICE-ID}</description>
+						<ip-vrf>
+							<ip>
+								<vrf>
+									<forwarding>{$VRF}</forwarding>
+								</vrf>
+							</ip>
+						</ip-vrf>
+						<ip>
+						<address>
+							<primary>
+								<address>{$IPV4-LOCAL-ADDRESS}</address>
+								<mask>{$IPV4-LOCAL-MASK}</mask>
+							</primary>
+						</address>
+						</ip>
+						<service-policy>
+							<input>{$SERVICE-ID}</input>
+						</service-policy>
+					</Ethernet>
+
+					<!-- ethernet sub-interface configuration -->
+					<Ethernet when="{$INTERFACE-TYPE = 'Ethernet' and $PORT-MODE = 'false'}">
+						<name>{$INTERFACE-ID}.{/provider-edge/device[name=$DEVICE-NAME]/interface[name=$INTERFACE-NAME]/efp-id}</name>
+						<encapsulation>
+							<dot1Q>
+								<vlan-id>{$VLAN-ID}</vlan-id>
+							</dot1Q>
+						</encapsulation>
+						<ip-vrf>
+							<ip>
+								<vrf>
+									<forwarding>{$VRF}</forwarding>
+								</vrf>
+							</ip>
+						</ip-vrf>
+						<ip>
+						<address>
+							<primary>
+								<address>{$IPV4-LOCAL-ADDRESS}</address>
+								<mask>{$IPV4-LOCAL-MASK}</mask>
+							</primary>
+						</address>
+						</ip>
+						<service-policy>
+							<input>{$SERVICE-ID}</input>
+						</service-policy>
+					</Ethernet>
 				</interface>
 			</config>
 		</device>

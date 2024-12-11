@@ -17,6 +17,10 @@ module l3vpn {
   description
     "NSO service package for basic MPLS Layer 3 VPN (L3VPN) services";
 
+  revision 2024-12-13 {
+    description "Add support for IOS devices";
+  }
+  
   revision 2021-10-18 {
     description "Initial revision";
   }
@@ -33,6 +37,7 @@ module l3vpn {
       type uint32 {
         range 1500..9000;
       }
+      default 2000;
     }
 
     leaf port-mode {
@@ -161,8 +166,9 @@ module l3vpn {
             type leafref {
               path "/ncs:devices/ncs:device/ncs:name";
             }
-            must "contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'iosxr')" {
-              error-message "Provider Edge devices must be IOS-XR";
+            must "contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'cisco-ios-cli') or 
+              contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'cisco-iosxr-cli')" {
+              error-message "Provider Edge devices must be Cisco IOS or Cisco IOS-XR";
             }
           }
 
