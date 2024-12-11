@@ -68,7 +68,12 @@ class ServiceDevice:
     def _ios_if_list(self):
         """Docstring Missing."""
         if_list = []
-        for intf_type in ["GigabitEthernet", "TenGigabitEthernet", "Loopback"]:
+        for intf_type in [
+            "Ethernet",
+            "GigabitEthernet",
+            "TenGigabitEthernet",
+            "Loopback",
+        ]:
             for intf in cd(self._device, f"config/ios:interface/{intf_type}"):
                 if_list.append(f"{intf_type}{intf.name}")
                 # self._log.info(f'Device._ios_if_list: {if_list[-1]}')

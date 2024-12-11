@@ -3,6 +3,8 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
+
+				<!-- ios-xr policy configuration -->
 				<policy-map xmlns="http://tail-f.com/ned/cisco-ios-xr">
 	        		<name>{$SERVICE-ID}</name>
 	        		<class>
@@ -25,6 +27,33 @@
 	          			</class-default>
 	        		</class>
       			</policy-map>
+
+				<!-- ios policy configuration -->
+				<policy-map xmlns="urn:ios">
+					<name>{$SERVICE-ID}</name>
+					<class-default>
+						<class>
+							<name>class-default</name>
+							<police-policy-map>
+								<police>
+									<cir>{$CIR}</cir>
+									<actions>
+										<conform-transmit>
+											<conform-action>
+												<transmit/>
+											</conform-action>
+										</conform-transmit>
+										<exceed-drop>
+											<exceed-action>
+												<drop/>
+											</exceed-action>
+										</exceed-drop>
+									</actions>
+								</police>
+							</police-policy-map>
+						</class>
+					</class-default>
+					</policy-map>
 			</config>
 		</device>
 	</devices>

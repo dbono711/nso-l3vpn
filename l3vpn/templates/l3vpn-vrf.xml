@@ -4,7 +4,7 @@
 		<device>
 			<name>{$DEVICE-NAME}</name>
 			<config>
-				<!-- vrf global configuration -->
+				<!-- ios-xr vrf global configuration -->
 				<vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<vrf-list>
 						<name>{$VRF}</name>
@@ -61,7 +61,7 @@
 					</vrf-list>
 				</vrf>
 
-				<!-- vrf bgp configuration -->
+				<!-- ios-xr vrf bgp configuration -->
 				<router xmlns="http://tail-f.com/ned/cisco-ios-xr">
 					<bgp>
 						<bgp-no-instance>
@@ -95,6 +95,49 @@
 								</address-family>
 							</vrf>
 						</bgp-no-instance>
+					</bgp>
+				</router>
+
+				<!-- ios vrf global configuration -->
+				<ip xmlns="urn:ios">
+					<vrf>
+						<name>{$VRF}</name>
+						<rd>{$RD}</rd>
+						<maximum>
+							<routes>{$MAX-ROUTES}</routes>
+							<threshold>{$MAX-ROUTES-WARNING}</threshold>
+						</maximum>
+						<route-target>
+							<export>
+								<asn-ip>{$AS-NUMBER}:{$VPN-ID}</asn-ip>
+							</export>
+							<import>
+								<asn-ip>{$AS-NUMBER}:{$VPN-ID}</asn-ip>
+							</import>
+						</route-target>
+					</vrf>
+				</ip>
+
+				<!-- ios vrf bgp configuration -->
+				<router xmlns="urn:ios">
+					<bgp>
+						<as-no>{$AS-NUMBER}</as-no>
+						<address-family>
+							<with-vrf>
+								<ipv4>
+									<af>unicast</af>
+									<vrf>
+										<name>{$VRF}</name>
+										<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'static'}">
+											<static />
+										</redistribute>
+										<redistribute when="{$REDISTRIBUTION-PROTOCOL = 'connected'}">
+											<connected />
+										</redistribute>
+									</vrf>
+								</ipv4>
+							</with-vrf>
+						</address-family>
 					</bgp>
 				</router>
 			</config>

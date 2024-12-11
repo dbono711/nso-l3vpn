@@ -88,13 +88,17 @@ class L3vpn(Network):
         self.log.info("CONFIGURING POLICY FOR INTERFACE: ", intf.name)
         template_policy = Template(self.service)
         policy_vars = Variables(base_vars)
-        policy_vars.add("CIR", intf.cir)
+        if "cisco-ios-cli" in self.device_ned_id:
+            cir = intf.cir * 1_000_000
+        else:
+            cir = intf.cir
+        policy_vars.add("CIR", cir)
         template_policy.apply("l3vpn-policy", policy_vars)
 
     def __setup_static_routing(
         self, device: ListElement, static: PresenceContainer, base_vars: list[str]
     ) -> None:
-        """Configure CE static routing. For each static route, loop through all forwarding addresses, and subsequently through
+        """Configure PE-CE static routing. For each static route, loop through all forwarding addresses, and subsequently through
         each interface on the device to ensure that each forwarding address falls within at least one of the IPv4 networks
         configured on the device interfaces
 
@@ -149,7 +153,7 @@ class L3vpn(Network):
     def __setup_bgp_routing(
         self, device: ListElement, bgp: PresenceContainer, base_vars: list[str]
     ) -> None:
-        """Configure BGP CE Routing
+        """Configure PE-CE BGP routing
 
         Args:
             device (ListElement): Network device
@@ -179,35 +183,26 @@ class L3vpn(Network):
     def configure(self) -> None:
         """Docstring missing."""
         base_vars = []
-        base_vars.append(("CUSTOMER-NAME", customer_name := self.service.customer_name))
+        base_vars.append(("CUSTOMER-NAME", self.service.customer_name))
         base_vars.append(("SERVICE-ID", service_id := self.service.service_id))
         base_vars.append(("VPN-ID", vpn_id := self.service.vpn_id))
-        base_vars.append(("INET", inet := self.service.inet))
-        base_vars.append(("MAX-ROUTES", max_routes := self.service.max_routes))
-        base_vars.append(
-            (
-                "MAX-ROUTES-WARNING",
-                max_routes_warning := self.service.max_routes_warning,
-            )
-        )
-        base_vars.append(("AS-NUMBER", pe_asn := self.service.provider_edge.asn))
+        base_vars.append(("INET", self.service.inet))
+        base_vars.append(("MAX-ROUTES", self.service.max_routes))
+        base_vars.append(("MAX-ROUTES-WARNING", self.service.max_routes_warning))
+        base_vars.append(("AS-NUMBER", self.service.provider_edge.asn))
 
         for device in self.service.provider_edge.device:
-            self.log.info("CONFIGURING DEVICE: ", device_name := device.name)
-            base_vars.append(
-                (
-                    "RD",
-                    rd
-                    := f"{self.get_loopback_ip(device.name, 0)}:{self.service.vpn_id}",
-                )
-            )
-            base_vars.append(("DEVICE-NAME", device_name))
+            self.log.info("CONFIGURING DEVICE: ", device.name)
+            self.device_ned_id = self.get_device_ned_id(device.name)
+            rd = f"{self.get_loopback_ip(device.name, 0)}:{self.service.vpn_id}"
+            vrf = self.get_vrf_name(device.name, service_id, vpn_id)
+            base_vars.append(("DEVICE-NAME", device.name))
 
-            self.log.info(
-                "ASSIGNING VRF NAME: ",
-                vrf_name := self.get_vrf_name(device_name, service_id, vpn_id),
-            )
-            base_vars.append(("VRF", vrf_name))
+            self.log.info("ASSIGNING RD: ", vrf)
+            base_vars.append(("RD", rd))
+
+            self.log.info("ASSIGNING VRF: ", vrf)
+            base_vars.append(("VRF", vrf))
 
             self.__setup_vrf(device, base_vars)
 

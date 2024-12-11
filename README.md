@@ -1,12 +1,12 @@
 # nso-l3vpn
 
-Cisco NSO service package for orchestrating [MPLS Layer 3 VPN (L3VPN)](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-9/lxvpn/configuration/guide/b-l3vpn-cg-asr9000-79x/implementing-mpls-layer-3-VPNs.html)* services on Cisco IOS-XR devices
+Cisco NSO service package for orchestrating MPLS Layer 3 VPN (L3VPN) services on Cisco IOS and IOS-XR devices
 
-***_NOTE:_ Not all product features for implementating MPLS L3VPN configuration on Cisco IOS-XR are implemented. Rather, this package provides a common approach to Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
+***_NOTE:_ Not all features for implementating MPLS L3VPN's are implemented. Rather, this package provides a common approach to Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
 
 ## Overview
 
-A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) consists of a set of sites that are interconnected by means of an MPLS provider core network. At each customer site, one or more customer edge (CE) routers attach to one or more provider edge (PE) routers. This NSO service package provides the orchestration for MPLS L3VPN’s between Cisco IOS-XR Provider Edge (PE) networking devices.
+A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) consists of a set of sites that are interconnected by means of an MPLS provider core network. At each customer site, one or more customer edge (CE) routers attach to one or more provider edge (PE) routers. This NSO service package provides the orchestration for MPLS L3VPN’s between Cisco IOS/IOS-XR Provider Edge (PE) networking devices.
 
 ## Features
 
@@ -20,7 +20,7 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
     1. The ```asn``` is used in automatically generating Route-Target (RT) and Route-Distinguisher (RD) values
 6. Support's the ability to specify the use of IPv4, IPv6, or both at the service level
 7. Each service MUST consist of two (2) or more Provider Edge (PE)
-    1. Support's Cisco IOS-XR Operating System
+    1. Support's Cisco IOS and Cisco IOS-XR Operating Systems
         1. VRF names adhere to Cisco IOS-XR special character and length (1..32 characters) limitations
         2. Route-Distinguishers (RD’s) adhere to [Type 1 encoding](https://datatracker.ietf.org/doc/rfc4364/)
     2. Support's one (1) or more User-Network-Interfaces (UNI) on each Provider Edge (PE) device
