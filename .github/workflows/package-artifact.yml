@@ -2,7 +2,12 @@ name: Build NSO package tarball
 
 on:
   release:
-    types: [published]
+    types: [created, published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build assets for (e.g. v1.0.0)"
+        required: true
 
 permissions:
   contents: write
@@ -11,16 +16,28 @@ jobs:
   build-tarball:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout at release tag
-        uses: actions/checkout@v4
-
-      - name: Derive version
+      - name: Determine tag and version
         id: ver
         shell: bash
         run: |
-          TAG="${GITHUB_REF_NAME}"     # vX.Y.Z
-          VERSION="${TAG#v}"           # X.Y.Z
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+
+          case "$TAG" in
+            v*) VERSION="${TAG#v}" ;;
+            *)  VERSION="$TAG" ;;
+          esac
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout at release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ver.outputs.tag }}
 
       - name: Create tar.gz from package root dir (l3vpn/)
         shell: bash
@@ -36,6 +53,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.ver.outputs.tag }}
           files: |
             l3vpn-${{ steps.ver.outputs.version }}.tar.gz
             l3vpn-${{ steps.ver.outputs.version }}.tar.gz.sha256
