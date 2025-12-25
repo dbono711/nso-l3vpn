@@ -39,9 +39,7 @@ class Network(Device):
         """
         ned = self.get_device_ned_id(deviceName)
         if "cisco-iosxr" in ned:
-            name = re.sub(r"[\.\(\)\, ]", "_", name)[
-                :32
-            ]  # accomodate for Cisco IOS XR character/length limitations
+            name = re.sub(r"[\.\(\)\, ]", "_", name)[:32]  # accomodate for Cisco IOS XR character/length limitations
 
         return f"{name}:{vpn}"
 
