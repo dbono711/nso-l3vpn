@@ -24,12 +24,11 @@ class L3vpn(Network):
         template = Template(self.service)
         vars = Variables(base_vars)
         vars.add("REDISTRIBUTION-PROTOCOL", "")
-        if device.redistribute:
-            for protocol in device.redistribute:
-                vars.add("REDISTRIBUTION-PROTOCOL", str(protocol))
-                template.apply("l3vpn-vrf", vars)
-        else:
+        for protocol in device.redistribute:
+            vars.add("REDISTRIBUTION-PROTOCOL", str(protocol))
             template.apply("l3vpn-vrf", vars)
+
+        template.apply("l3vpn-vrf", vars)
 
     def __setup_intf(
         self, device: ListElement, intf: ListElement, base_vars: list[str]
@@ -198,7 +197,7 @@ class L3vpn(Network):
             vrf = self.get_vrf_name(device.name, service_id, vpn_id)
             base_vars.append(("DEVICE-NAME", device.name))
 
-            self.log.info("ASSIGNING RD: ", vrf)
+            self.log.info("ASSIGNING RD: ", rd)
             base_vars.append(("RD", rd))
 
             self.log.info("ASSIGNING VRF: ", vrf)
