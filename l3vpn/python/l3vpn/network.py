@@ -3,26 +3,12 @@
 
 import ipaddress
 import re
-
 from ncs.maagic import ListElement, cd
-
 from .device import Device
 
 
 class Network(Device):
     """Docstring Missing."""
-
-    def get_device_model(self, deviceName: str) -> str:
-        """Returns the NSO discovered model for a given device.
-
-        Args:
-            device_name (str): Device name in CDB
-
-        Returns:
-            str: NSO discovered device model
-        """
-
-        return self.root.devices.device[deviceName].platform.model
 
     def get_vrf_name(self, deviceName: str, name: str, vpn: int) -> str:
         """Formats the Virtual Routing & Forwarding (VRF) name for the MPLS L3VPN using
