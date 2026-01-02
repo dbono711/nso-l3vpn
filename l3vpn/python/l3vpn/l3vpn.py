@@ -3,10 +3,8 @@
 
 import ipaddress
 from itertools import product
-
 from ncs.maagic import ListElement, PresenceContainer
 from ncs.template import Template, Variables
-
 from .network import Network
 
 

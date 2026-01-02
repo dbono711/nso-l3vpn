@@ -20,7 +20,7 @@ module l3vpn {
   revision 2024-12-13 {
     description "Add support for IOS devices";
   }
-  
+
   revision 2021-10-18 {
     description "Initial revision";
   }
@@ -161,12 +161,12 @@ module l3vpn {
           tailf:info "Provider Edge device";
           min-elements 2;
           key name;
-        
+
           leaf name {
             type leafref {
               path "/ncs:devices/ncs:device/ncs:name";
             }
-            must "contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'cisco-ios-cli') or 
+            must "contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'cisco-ios-cli') or
               contains(/ncs:devices/ncs:device[ncs:name=current()/../name]/ncs:device-type/ncs:cli/ncs:ned-id, 'cisco-iosxr-cli')" {
               error-message "Provider Edge devices must be Cisco IOS or Cisco IOS-XR";
             }
@@ -184,21 +184,21 @@ module l3vpn {
             tailf:info "PE interface";
             min-elements 1;
             key name;
-            
+
             leaf name {
               tailf:cli-completion-actionpoint l3vpn-interface-name {
                 tailf:cli-completion-id "provideredge-";
               }
               type string;
             }
-            
+
             uses interface;
           }
 
           container ce-routing {
             tailf:info "Customer Edge Routing";
             presence "true";
-            
+
             container static {
               tailf:info "Static Routes";
               presence "true";
@@ -219,17 +219,17 @@ module l3vpn {
                   type inet:ipv4-address;
                 }
               }
-              
+
               list ipv6-destination-prefix {
                 tailf:info "Destination Prefix";
                 when "(../../../../../inet = 'IPv6' or ../../../../../inet = 'IPv4-IPv6')";
                 key ipv6-prefix;
-                
+
                 leaf ipv6-prefix {
                   tailf:info "Destination for static route";
                   type inet:ipv6-prefix;
                 }
-                
+
                 leaf-list ipv6-forwarding {
                   tailf:info "Static route next-hop";
                   min-elements 1;
