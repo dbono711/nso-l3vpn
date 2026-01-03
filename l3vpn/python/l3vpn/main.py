@@ -2,8 +2,11 @@
 """Docstring Missing."""
 
 from ncs.application import Application, Service
-from ncs.maagic import cd
+from ncs.log import Log
+from ncs.maagic import ListElement, Root, cd
+
 from .completion import InterfaceCompletion
+from .context import ServiceContext
 from .l3vpn import L3vpn
 from .premod import PreMod
 
@@ -15,17 +18,20 @@ class ServiceCallbacks(Service):
     def cb_pre_modification(self, tctx, op, kp, root, proplist):
         """Docstring Missing."""
         self.log.info(f"Service premod(service={kp})")
+        service = cd(root, kp)
+        ctx = ServiceContext(log=self.log, root=root, service=service)
+
         if op == 2:
             return  # nothing to do for 'Delete(2)' operation
 
-        service = cd(root, kp)
-        PreMod(self.log, root, service).fill()
+        PreMod(ctx).fill()
 
     @Service.create
     def cb_create(self, tctx, root, service, proplist):
         """Docstring Missing."""
         self.log.info(f"Service create(service={service._path})")
-        L3vpn(self.log, root, service).configure()
+        ctx = ServiceContext(log=self.log, root=root, service=service)
+        # L3vpn(ctx).configure()
 
 
 class Main(Application):

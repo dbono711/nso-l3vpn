@@ -3,12 +3,18 @@
 
 import ipaddress
 import re
+from typing import List
 from ncs.maagic import ListElement, cd
 from .device import Device
+from .context import ServiceContext
 
 
-class Network(Device):
+class Network:
     """Docstring Missing."""
+
+    def __init__(self, ctx: ServiceContext, device: Device | None = None) -> None:
+        self.ctx = ctx
+        self.device = device or Device(ctx)
 
     def get_vrf_name(self, deviceName: str, name: str, vpn: int) -> str:
         """Formats the Virtual Routing & Forwarding (VRF) name for the MPLS L3VPN using
@@ -29,23 +35,26 @@ class Network(Device):
 
         return f"{name}:{vpn}"
 
-    def get_intf_type_and_id(self, deviceName: str, intfName: str) -> list[str, str]:
+    def get_intf_type_and_id(self, deviceName: str, intfName: str) -> tuple[str, str]:
         """Splits a complete network interface into type and ID. For example, for Cisco interface
-        'GigabitEthernet0/0/0/12', this method will return ['GigabitEthernet', '0/0/0/12']
+        'GigabitEthernet0/0/0/12', this method will return ('GigabitEthernet', '0/0/0/12')
 
         Args:
             deviceName (str): Network device hostname
             intfName (str): The complete network interface name
 
         Returns:
-            list[str, str]: A network interface split into type and ID
+            tuple[str, str]: A network interface split into type and ID
         """
-        ned = self.get_device_ned_id(deviceName)
-        if "cisco-ios" in ned:
-            return re.split(r"(^.*\B)", intfName)[1:]
+        ned = self.device.get_device_ned_id(deviceName)
+        if "cisco-ios" in ned or "cisco-iosxr" in ned:
+            parts = re.split(r"(^.*\B)", intfName)[1:]
+            if len(parts) != 2:
+                raise ValueError(f"Could not parse interface name '{intfName}' on {deviceName} (ned={ned})")
 
-        if "cisco-iosxr" in ned:
-            return re.split(r"(^.*\B)", intfName)[1:]
+            return parts[0], parts[1]
+
+        raise ValueError(f"Unsupported NED '{ned}' for device {deviceName}")
 
     def get_next_subintf_id(self, deviceName: str, intfType: str, intfId: str) -> int:
         """Allocates the next available sub-interface ID on an interface
@@ -57,24 +66,24 @@ class Network(Device):
         Returns:
             int: next available sub-interface ID
         """
-        ned = self.get_device_ned_id(deviceName)
+        ned = self.device.get_device_ned_id(deviceName)
         if "cisco-iosxr" in ned:
             sub_intf_list = cd(
-                self.root,
+                self.ctx.root,
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}-subinterface/{intfType}",
             )
             id_list = [int(x.id.split(".")[-1]) for x in sub_intf_list]
 
         elif "cisco-ios" in ned:
             sub_intf_list = cd(
-                self.root,
+                self.ctx.root,
                 f"/devices/device{{{deviceName}}}/config/ios:interface/{intfType}",
             )
             id_list = [
                 int(x.name.split(".")[-1]) for x in sub_intf_list if "." in x.name
             ]
 
-        self.log.info(
+        self.ctx.log.info(
             f"Assigning sub-interface ID {(subt_intf_id := list(set(range(1, 2**8)) - set(id_list))[0])}"
         )
 

@@ -6,10 +6,15 @@ from itertools import product
 from ncs.maagic import ListElement, PresenceContainer
 from ncs.template import Template, Variables
 from .network import Network
+from .context import ServiceContext
 
 
-class L3vpn(Network):
+class L3vpn:
     """Docstring Missing."""
+
+    def __init__(self, ctx: ServiceContext) -> None:
+        self.ctx = ctx
+        self.network = Network(ctx)
 
     def __setup_vrf(self, device: ListElement, base_vars: list[str]) -> None:
         """Configure VRF routing instances
