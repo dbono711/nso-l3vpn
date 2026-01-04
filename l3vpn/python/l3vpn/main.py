@@ -1,9 +1,9 @@
 # -*- mode: python; python-indent: 4 -*-
 """Docstring Missing."""
 
+
 from ncs.application import Application, Service
-from ncs.log import Log
-from ncs.maagic import ListElement, Root, cd
+from ncs.maagic import cd
 
 from .completion import InterfaceCompletion
 from .context import ServiceContext
@@ -31,7 +31,7 @@ class ServiceCallbacks(Service):
         """Docstring Missing."""
         self.log.info(f"Service create(service={service._path})")
         ctx = ServiceContext(log=self.log, root=root, service=service)
-        # L3vpn(ctx).configure()
+        L3vpn(ctx).configure()
 
 
 class Main(Application):

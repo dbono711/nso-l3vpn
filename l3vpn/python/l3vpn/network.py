@@ -3,10 +3,11 @@
 
 import ipaddress
 import re
-from typing import List
+
 from ncs.maagic import ListElement, cd
-from .device import Device
+
 from .context import ServiceContext
+from .device import Device
 
 
 class Network:
@@ -29,7 +30,7 @@ class Network:
         Returns:
             str: VRF name formatted as a combination of name: str and vpn: int
         """
-        ned = self.get_device_ned_id(deviceName)
+        ned = self.device.get_device_ned_id(deviceName)
         if "cisco-iosxr" in ned:
             name = re.sub(r"[\.\(\)\, ]", "_", name)[:32]  # accomodate for Cisco IOS XR character/length limitations
 
@@ -88,37 +89,6 @@ class Network:
         )
 
         return subt_intf_id
-
-    def get_available_domain_list(
-        self, range: list[int], deviceName: str, deviceModel: str
-    ) -> list[int]:
-        """Return the Ethernet Domain (Bridge Domain, VLAN, etc.) ID's available on a given device
-
-        Args:
-            range (List[int]): The range of Domain ID's to check against
-            deviceName (str): Device name in CDB
-            deviceModel (str): Device model
-
-        Returns:
-            List[int]: The range of Domain ID's on the device
-        """
-        device = self.get_device(deviceName)
-        device_ned_id = self.get_device_ned_id(deviceName)
-
-        if device_ned_id == "cisco-ios-cli-6.29:cisco-ios-cli-6.29":
-            global_list = []
-            if "ME-3800X" in str(deviceModel):  # ME-3800X VLAN
-                current_domain = device.config.vlan.vlan_list
-                for item in current_domain:
-                    global_list.append(item.id)
-                available_id_list = list(set(range) - set(global_list))
-            elif "ASR-920" or "NETSIM" in str(deviceModel):  # ASR-920 Bridge-Domain
-                current_domain = device.config.bridge_domain.bridge_domain_list
-                for item in current_domain:
-                    global_list.append(item.id)
-                available_id_list = list(set(range) - set(global_list))
-
-            return available_id_list
 
     def get_ipv4_peer_loopback(self, peerLoopbackNum: int, deviceName: str) -> str:
         """Return the peer IPv4 Addresses of a given loopback interface for a given list of devices in the service
@@ -185,35 +155,40 @@ class Network:
         Returns:
             str: IPv4 Loopback address
         """
-        ned = self.get_device_ned_id(deviceName)
+        ned = self.device.get_device_ned_id(deviceName)
         if "cisco-iosxr" in ned:
             loopback_intf_list = cd(
-                self.root,
+                self.ctx.root,
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/Loopback",
             )
 
             if loopbackNum in loopback_intf_list:
                 loopback_ip = loopback_intf_list[loopbackNum].ipv4.address.ip
+                if loopback_ip is None:
+                    raise Exception(
+                        f"An IPv4 address for Loopback{loopbackNum} does not exist on {deviceName}"
+                    )
+
+                return loopback_ip
             else:
                 raise Exception(f"Loopback{loopbackNum} does not exist on {deviceName}")
 
         elif "cisco-ios" in ned:
             loopback_intf_list = cd(
-                self.root,
+                self.ctx.root,
                 f"/devices/device{{{deviceName}}}/config/ios:interface/Loopback",
             )
 
             if loopbackNum in loopback_intf_list:
                 loopback_ip = loopback_intf_list[loopbackNum].ip.address.primary.address
+                if loopback_ip is None:
+                    raise Exception(
+                        f"An IPv4 address for Loopback{loopbackNum} does not exist on {deviceName}"
+                    )
+
+                return loopback_ip
             else:
                 raise Exception(f"Loopback{loopbackNum} does not exist on {deviceName}")
-
-        if loopback_ip is None:
-            raise Exception(
-                f"An IPv4 address for Loopback{loopbackNum} does not exist on {deviceName}"
-            )
-
-        return loopback_ip
 
     def validate_interface(
         self, deviceName: str, intf: ListElement, intfType: str, intfId: str
@@ -229,15 +204,15 @@ class Network:
             intfType (str): The interface type (i.e., 'GigabitEthernet')
             intfId (str): The interface ID (i.e., '0/0/0/12')
         """
-        self.log.info(f"Checking interface {intfType}{intfId} on {deviceName}")
-        ned = self.get_device_ned_id(deviceName)
+        self.ctx.log.info(f"Checking interface {intfType}{intfId} on {deviceName}")
+        ned = self.device.get_device_ned_id(deviceName)
         if "cisco-iosxr" in ned:
             intf_list = cd(
-                self.root,
+                self.ctx.root,
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}",
             )
             sub_intf_list = cd(
-                self.root,
+                self.ctx.root,
                 f"/devices/device{{{deviceName}}}/config/cisco-ios-xr:interface/{intfType}-subinterface/{intfType}",
             )
         elif "cisco-ios" in ned:
@@ -267,10 +242,10 @@ class Network:
         """
         cfm_service_name = serviceName + "_" + str(id)
         if cfm_service_name.__len__() > 22:
-            self.log.info(f"Reducing CFM Service Name to {cfm_service_name[:22]}")
+            self.ctx.log.info(f"Reducing CFM Service Name to {cfm_service_name[:22]}")
             cfm_service_name = cfm_service_name[:22]
 
-        self.log.info(f"CFM Service Name: {cfm_service_name}")
+        self.ctx.log.info(f"CFM Service Name: {cfm_service_name}")
 
         return cfm_service_name
 
@@ -309,9 +284,9 @@ class Network:
             intfType (str): The interface type (i.e., 'GigabitEthernet')
             intfId (str): The interface ID (i.e., '0/0/0/12')
         """
-        self.log.info("Checking for sub-interface conflicts")
+        self.ctx.log.info("Checking for sub-interface conflicts")
         if len(subIntfIdList) > 0:
-            self.log.info(subIntfIdList)
+            self.ctx.log.info(subIntfIdList)
             raise Exception(
                 f'{intfType}{intfId} on {deviceName} already has sub-interfaces configured, creating a "port-based" service is not allowed'
             )
@@ -327,7 +302,7 @@ class Network:
             intfType (str): The interface type (i.e., 'GigabitEthernet')
             intfId (str): The interface ID (i.e., '0/0/0/12')
         """
-        self.log.info("Checking if interface has existing IP configuration")
+        self.ctx.log.info("Checking if interface has existing IP configuration")
         if intfList[intfId].ipv4.address.ip is not None:
             raise Exception(
                 f"{intfType}{intfId} on {deviceName} already has an IPv4 address configured. Check to ensure it is not in use by another service"
@@ -352,13 +327,13 @@ class Network:
             intfType (str): The interface type (i.e., 'GigabitEthernet')
             vlanIdList (list[str]): List of VLAN ID's being checked against
         """
-        self.log.info("Checking for VLAN encapsulation conflicts")
-        for i in subIntfIdList:
+        self.ctx.log.info("Checking for VLAN encapsulation conflicts")
+        for intf in subIntfIdList:
             if any(
-                item in vlanIdList for item in i.encapsulation.dot1q.vlan_id.as_list()
+                item in vlanIdList for item in intf.encapsulation.dot1q.vlan_id.as_list()
             ):
                 raise Exception(
-                    f"{intfType}{i.id} on {deviceName} already has a sub-interface configured with encapsulation {vlanIdList}"
+                    f"{intfType}{intf.id} on {deviceName} already has a sub-interface configured with encapsulation {vlanIdList}"
                 )
 
     def __filter_sub_interfaces(self, subIntfList: list[str], intfId: str) -> list[str]:
@@ -369,9 +344,9 @@ class Network:
             intfId (str): The interface ID (i.e., '0/0/0/12')
         """
         sub_intf_id_list = []
-        for i in subIntfList:
-            if i.id.split(".")[0] == intfId:
-                self.log.info(f"Filter is keeping sub-interface: {i.id}")
-                sub_intf_id_list.append(i)
+        for intf in subIntfList:
+            if intf.id.split(".")[0] == intfId:
+                self.ctx.log.info(f"Filter is keeping sub-interface: {intf.id}")
+                sub_intf_id_list.append(intf)
 
         return sub_intf_id_list
