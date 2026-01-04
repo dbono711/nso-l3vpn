@@ -1,15 +1,25 @@
 # -*- mode: python; python-indent: 4 -*-
 """Docstring Missing."""
 
+
 import ipaddress
 from itertools import product
+
 from ncs.maagic import ListElement, PresenceContainer
 from ncs.template import Template, Variables
+
+from .context import ServiceContext
+from .device import Device
 from .network import Network
 
 
-class L3vpn(Network):
+class L3vpn:
     """Docstring Missing."""
+
+    def __init__(self, ctx: ServiceContext) -> None:
+        self.ctx = ctx
+        self.network = Network(ctx)
+        self.device = Device(ctx)
 
     def __setup_vrf(self, device: ListElement, base_vars: list[str]) -> None:
         """Configure VRF routing instances
@@ -18,8 +28,8 @@ class L3vpn(Network):
             device (ListElement): Network device
             base_vars (list[str]): Base variables
         """
-        self.log.info("CONFIGURING VRF")
-        template = Template(self.service)
+        self.ctx.log.info("Configuring VRF")
+        template = Template(self.ctx.service)
         vars = Variables(base_vars)
         vars.add("REDISTRIBUTION-PROTOCOL", "")
         for protocol in device.redistribute:
@@ -39,11 +49,11 @@ class L3vpn(Network):
             intf (ListElement): Interface list
             base_vars (list[str]): Base variables
         """
-        self.log.info("CONFIGURING INTERFACE: ", intf.name)
-        template = Template(self.service)
+        self.ctx.log.info("Configuring interface: ", intf.name)
+        template = Template(self.ctx.service)
         vars = Variables(base_vars)
-        intf_type, intf_id = self.get_intf_type_and_id(device.name, intf.name)
-        self.validate_interface(device.name, intf, intf_type, intf_id)
+        intf_type, intf_id = self.network.get_intf_type_and_id(device.name, intf.name)
+        self.network.validate_interface(device.name, intf, intf_type, intf_id)
         vars.add("INTERFACE-NAME", intf.name)
         vars.add("INTERFACE-TYPE", intf_type)
         vars.add("INTERFACE-ID", intf_id)
@@ -56,7 +66,7 @@ class L3vpn(Network):
         vars.add("IPV4-LOCAL-MASK", "")
         vars.add("IPV6-LOCAL-PREFIX", "")
         if intf.ipv4_local_prefix:
-            ip_address, ip_mask = self.get_ip_and_mask(intf.ipv4_local_prefix)
+            ip_address, ip_mask = self.network.get_ip_and_mask(intf.ipv4_local_prefix)
             vars.add("IPV4-LOCAL-ADDRESS", ip_address)
             vars.add("IPV4-LOCAL-MASK", ip_mask)
 
@@ -82,8 +92,8 @@ class L3vpn(Network):
             intf (str): Network device interface
             base_vars (list[str]): Base variables
         """
-        self.log.info("CONFIGURING POLICY FOR INTERFACE: ", intf.name)
-        template_policy = Template(self.service)
+        self.ctx.log.info("Configuring policy for interface: ", intf.name)
+        template_policy = Template(self.ctx.service)
         policy_vars = Variables(base_vars)
         if "cisco-ios-cli" in self.device_ned_id:
             cir = intf.cir * 1_000_000
@@ -104,8 +114,8 @@ class L3vpn(Network):
             static (PresenceContainer): Static routing container
             base_vars (list[str]): Base variables
         """
-        self.log.info("CONFIGURING STATIC ROUTES")
-        template_static = Template(self.service)
+        self.ctx.log.info("Configuring static routes")
+        template_static = Template(self.ctx.service)
         static_vars = Variables(base_vars)
         static_vars.add("IPV4-DEST-PREFIX", "")
         static_vars.add("IPV4-FORWARDING", "")
@@ -122,7 +132,7 @@ class L3vpn(Network):
                     ).network
 
                     # TODO: Need to take into account having more than one interface per device as well as more than forwarding address per static route
-                    if self.check_ip_host_in_network(forwarding_address, intf_network):
+                    if self.network.check_ip_host_in_network(forwarding_address, intf_network):
                         static_vars.add("IPV4-FORWARDING", forwarding_address)
                         template_static.apply("l3vpn-static", static_vars)
                     else:
@@ -141,7 +151,7 @@ class L3vpn(Network):
                             intf.ipv6_local_prefix
                         ).network
 
-                        if self.check_ip_host_in_network(
+                        if self.network.check_ip_host_in_network(
                             forwarding_address, intf_network
                         ):
                             static_vars.add("IPV6-FORWARDING", forwarding_address)
@@ -157,8 +167,8 @@ class L3vpn(Network):
             bgp (PresenceContainer): BGP routing container
             base_vars (list[str]): Base variables
         """
-        self.log.info("CONFIGURING BGP")
-        template_bgp = Template(self.service)
+        self.ctx.log.info("Configuring BGP")
+        template_bgp = Template(self.ctx.service)
         bgp_vars = Variables(base_vars)
         bgp_vars.add("IPv4-BGP-NEIGHBOR", "")
         bgp_vars.add("IPv6-BGP-NEIGHBOR", "")
@@ -180,25 +190,25 @@ class L3vpn(Network):
     def configure(self) -> None:
         """Docstring missing."""
         base_vars = []
-        base_vars.append(("CUSTOMER-NAME", self.service.customer_name))
-        base_vars.append(("SERVICE-ID", service_id := self.service.service_id))
-        base_vars.append(("VPN-ID", vpn_id := self.service.vpn_id))
-        base_vars.append(("INET", self.service.inet))
-        base_vars.append(("MAX-ROUTES", self.service.max_routes))
-        base_vars.append(("MAX-ROUTES-WARNING", self.service.max_routes_warning))
-        base_vars.append(("AS-NUMBER", self.service.provider_edge.asn))
+        base_vars.append(("CUSTOMER-NAME", self.ctx.service.customer_name))
+        base_vars.append(("SERVICE-ID", service_id := self.ctx.service.service_id))
+        base_vars.append(("VPN-ID", vpn_id := self.ctx.service.vpn_id))
+        base_vars.append(("INET", self.ctx.service.inet))
+        base_vars.append(("MAX-ROUTES", self.ctx.service.max_routes))
+        base_vars.append(("MAX-ROUTES-WARNING", self.ctx.service.max_routes_warning))
+        base_vars.append(("AS-NUMBER", self.ctx.service.provider_edge.asn))
 
-        for device in self.service.provider_edge.device:
-            self.log.info("CONFIGURING DEVICE: ", device.name)
-            self.device_ned_id = self.get_device_ned_id(device.name)
-            rd = f"{self.get_loopback_ip(device.name, 0)}:{self.service.vpn_id}"
-            vrf = self.get_vrf_name(device.name, service_id, vpn_id)
+        for device in self.ctx.service.provider_edge.device:
+            self.ctx.log.info("Configuring device: ", device.name)
+            self.device_ned_id = self.device.get_device_ned_id(device.name)
+            rd = f"{self.network.get_loopback_ip(device.name, 0)}:{self.ctx.service.vpn_id}"
+            vrf = self.network.get_vrf_name(device.name, service_id, vpn_id)
             base_vars.append(("DEVICE-NAME", device.name))
 
-            self.log.info("ASSIGNING RD: ", rd)
+            self.ctx.log.info("Assigning RD: ", rd)
             base_vars.append(("RD", rd))
 
-            self.log.info("ASSIGNING VRF: ", vrf)
+            self.ctx.log.info("Assigning VRF: ", vrf)
             base_vars.append(("VRF", vrf))
 
             self.__setup_vrf(device, base_vars)
