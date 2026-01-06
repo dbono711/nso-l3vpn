@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/dbono711/nso-l3vpn/compare/v1.1.0...v1.1.1) (2026-01-06)
+
+
+### Bug Fixes
+
+* Bump l3vpn package version to 1.1.1 and reorder premod callback ([66e1ba8](https://github.com/dbono711/nso-l3vpn/commit/66e1ba806dbd63bd6da9752ccd202f02be417492))
+* Bump l3vpn package version to 1.1.1 and reorder premod callback ([43a9291](https://github.com/dbono711/nso-l3vpn/commit/43a9291daa24d2eb5c7223290fbe72fe84f90b13))
+
 ## [1.1.0](https://github.com/dbono711/nso-l3vpn/compare/v1.0.0...v1.1.0) (2026-01-04)
 
 
