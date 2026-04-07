@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/dbono711/nso-l3vpn/compare/v1.1.1...v1.2.0) (2026-04-07)
+
+
+### Features
+
+* Migrate tests from Robot to pytest ([503b850](https://github.com/dbono711/nso-l3vpn/commit/503b85092cf081e326738490a74ab3fd07634a7a))
+* Migrate tests from Robot to pytest ([024de07](https://github.com/dbono711/nso-l3vpn/commit/024de0728a47af319e243d9fcf31d06dc4b524fa))
+
 ## [1.1.1](https://github.com/dbono711/nso-l3vpn/compare/v1.1.0...v1.1.1) (2026-01-06)
 
 
