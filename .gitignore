@@ -8,11 +8,11 @@
 **/logs/*
 **/*DS_Store*
 **/log.*
+cisco-ios*
 *.classpath
 *.project
 *.fxs
 *gz
-.idea/
-.vscode/
-*.code-workspace
-cisco-ios*
+.zed/
+.pytest_cache/
+pyrightconfig.json
