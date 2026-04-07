@@ -15,14 +15,13 @@ clean-packages:
     done
 
 test-packages:
-	[ -d "testing/.venv" ] || python3 -m venv testing/.venv
-	testing/.venv/bin/python -m pip install --upgrade pip
-	testing/.venv/bin/pip install -r testing/test-requirements.txt > /dev/null
-	testing/.venv/bin/pip freeze | grep -v -f testing/test-requirements.txt - | xargs testing/.venv/bin/pip uninstall -y
-	testing/.venv/bin/robot -d testing/logs/ -N "NSO L3VPN" --suitestatlevel 2 l3vpn/tests/crud_testing.robot
-	ROBOT_EXIT_CODE=$$?
-	rm -rf testing/.venv
-	exit $$ROBOT_EXIT_CODE
+	[ -d "tests/.venv" ] || python3 -m venv tests/.venv
+	tests/.venv/bin/python -m pip install --upgrade pip > /dev/null
+	tests/.venv/bin/pip install -r tests/requirements.txt > /dev/null
+	tests/.venv/bin/pytest tests/ -v
+	PYTEST_EXIT_CODE=$$?
+	rm -rf tests/.venv
+	exit $$PYTEST_EXIT_CODE
 
 all: build-all
 clean: clean-packages

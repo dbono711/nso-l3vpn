@@ -48,6 +48,14 @@ ncs_cli -u admin
 request packages reload
 ```
 
+## Testing
+
+Tests are written in pytest and interact with a live NSO instance via MAAPI. See [tests/README.md](tests/README.md) for the full framework details, prerequisites, and how to add test cases.
+
+```bash
+make test
+```
+
 ## Example Service Instance
 
 ```shell
