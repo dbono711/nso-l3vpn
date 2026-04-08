@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/dbono711/nso-l3vpn/compare/v1.3.0...v1.3.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* auto-trigger package artifact via workflow dispatch on release ([6e99615](https://github.com/dbono711/nso-l3vpn/commit/6e99615aac0aed105bc22b61282cc2bd389f8241))
+* auto-trigger package artifact via workflow dispatch on release ([5e2ede6](https://github.com/dbono711/nso-l3vpn/commit/5e2ede6421759df666294ac7902dd6f84acef402))
+
 ## [1.3.0](https://github.com/dbono711/nso-l3vpn/compare/v1.2.0...v1.3.0) (2026-04-08)
 
 
