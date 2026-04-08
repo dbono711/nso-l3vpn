@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/dbono711/nso-l3vpn/compare/v1.3.1...v1.3.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* add actions write permission to trigger workflow dispatch ([c6bbccb](https://github.com/dbono711/nso-l3vpn/commit/c6bbccb3b7250855a50d316e1ec09fd7355811cf))
+* add actions write permission to trigger workflow dispatch ([a90b98b](https://github.com/dbono711/nso-l3vpn/commit/a90b98bd367d899c7f408a54863e21b1b8f13c47))
+
 ## [1.3.1](https://github.com/dbono711/nso-l3vpn/compare/v1.3.0...v1.3.1) (2026-04-08)
 
 
