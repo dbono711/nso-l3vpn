@@ -12,9 +12,6 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -22,11 +19,12 @@ jobs:
           release-type: simple
           config-file: .release-please-config.json
 
-  build-tarball:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
-    uses: ./.github/workflows/package-artifact.yml
-    with:
-      tag: ${{ needs.release-please.outputs.tag_name }}
-    permissions:
-      contents: write
+      - name: Trigger package artifact build
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          gh workflow run package-artifact.yml \
+            --repo ${{ github.repository }} \
+            --ref main \
+            --field tag=${{ steps.release.outputs.tag_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
