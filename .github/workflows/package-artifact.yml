@@ -8,6 +8,12 @@ on:
       tag:
         description: "Release tag to build assets for (e.g. v1.0.0)"
         required: true
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to build assets for (e.g. v1.0.0)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -20,7 +26,7 @@ jobs:
         id: ver
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event_name }}" = "workflow_call" ]; then
             TAG="${{ inputs.tag }}"
           else
             TAG="${GITHUB_REF_NAME}"
