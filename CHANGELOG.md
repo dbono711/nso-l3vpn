@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/dbono711/nso-l3vpn/compare/v1.2.0...v1.3.0) (2026-04-08)
+
+
+### Features
+
+* auto-trigger package artifact build on release ([fb125c3](https://github.com/dbono711/nso-l3vpn/commit/fb125c34149694043f9721a16d7f8a78043c6363))
+* auto-trigger package artifact build on release ([d549a33](https://github.com/dbono711/nso-l3vpn/commit/d549a332f04905a89830b7d50abc40c6b316b43a))
+
 ## [1.2.0](https://github.com/dbono711/nso-l3vpn/compare/v1.1.1...v1.2.0) (2026-04-07)
 
 
