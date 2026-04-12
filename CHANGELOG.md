@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/dbono711/nso-l3vpn/compare/v1.3.2...v2.0.0) (2026-04-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* Integrate Resource Manager for VPN ID allocation
+
+### Features
+
+* Integrate Resource Manager for VPN ID allocation ([183a7e3](https://github.com/dbono711/nso-l3vpn/commit/183a7e369943c33e286eff34d888ef36f2634c23))
+
 ## [1.3.2](https://github.com/dbono711/nso-l3vpn/compare/v1.3.1...v1.3.2) (2026-04-08)
 
 
