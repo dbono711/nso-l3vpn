@@ -115,8 +115,7 @@ module l3vpn {
       }
 
       leaf vpn-id {
-        tailf:info "VPN identifier - used to derive RT and RD values";
-        mandatory true;
+        tailf:info "VPN identifier - used to derive RT and RD values.";
         type uint16;
       }
 

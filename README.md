@@ -2,7 +2,7 @@
 
 Cisco NSO service package for orchestrating MPLS Layer 3 VPN (L3VPN) services on Cisco IOS and IOS-XR devices
 
-***_NOTE:_ Not all features for implementating MPLS L3VPN's are implemented. Rather, this package provides a common approach to Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
+***_NOTE:_ Not all features for implementating MPLS L3VPN's are implemented. Rather, this package provides a common approach for Service Provider (SP) related configuration required for supporting MPLS L3VPN's for customers**
 
 ## Overview
 
@@ -10,10 +10,11 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
 
 ## Features
 
-1. Support's the selection of a ```customer-name``` as a unique identifier for a service instance
+1. Support's the selection of a ```customer-name``` as a unique identifier for a service instance as leafref to ```/ncs:customers/ncs:customer/ncs:id```
 2. Support's the manual entry of a ```service-id``` as a unique identifier for a service instance
-3. Support's the manual entry of a Virtual Private Network (VPN) identifier at the service level
-    1. The ```vpn-id``` is used in automatically generating Route-Target (RT) and Route-Distinguisher (RD) values
+3. Support's the entry of a Virtual Private Network (VPN) identifier at the service level, allocated via the Cisco NSO Resource Manager
+    1. The ```vpn-id``` is used as a requested allocation — the resource manager either reserves that specific ID or generates one
+    2. The ```vpn-id``` is used in automatically generating Route-Target (RT) and Route-Distinguisher (RD) values
 4. Support's the ability to set the maximum number of routes accepted by the L3VPN at the service level (range: 1..5000, default: 100)
     1. Support's the ability to set the warning percentage for the maximum routes (range: 1..100, default: 80)
 5. Support's the manual entry of the Provider Edge (PE) ASN at the service level
@@ -30,6 +31,21 @@ A Multiprotocol Label Switching (MPLS) Layer 3 Virtual Private Network (L3VPN) c
             2. Support's validation that the forwarding address of each static route falls within one of the device interfaces ipv4-prefix or ipv6-prefix
         3. Support's Border Gateway Protocol (BGP) as the Provider Edge (PE) to Customer Edge (CE) routing protocol
             1. Support's re-distribution of ```connected``` and/or ```static``` routes
+
+## Dependencies
+
+### Cisco NSO Resource Manager (5.0+)
+
+This package requires the [Cisco NSO Resource Manager](https://developer.cisco.com/docs/nso/guides/#!resource-manager) package to allocate VPN IDs. The `vpn-id` entered at the service level is used as a requested ID — the resource manager either allocates that specific ID or generates one if not specified.
+
+Install the resource manager package into your NSO runtime, then configure a pool named `primary-vpn-pool`:
+
+```shell
+set resource-pools id-pool primary-vpn-pool range start 100
+set resource-pools id-pool primary-vpn-pool range end 199
+set resource-pools id-pool primary-vpn-pool allocation-method firstfree
+commit
+```
 
 ## Assumptions
 
@@ -64,7 +80,7 @@ make test
 set customers customer Disneyland status active
 
 # configure service
-set services l3vpn Disneyland service01 vpn-id 1
+set services l3vpn Disneyland service01 vpn-id 100
 set services l3vpn Disneyland service01 inet IPv4
 set services l3vpn Disneyland service01 max-routes 100
 set services l3vpn Disneyland service01 max-routes-warning 80
