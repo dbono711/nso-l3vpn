@@ -7,6 +7,7 @@ from itertools import product
 
 from ncs.maagic import ListElement, PresenceContainer
 from ncs.template import Template, Variables
+from resource_manager.service.allocator import Allocator
 
 from .context import ServiceContext
 from .device import Device
@@ -192,7 +193,21 @@ class L3vpn:
         base_vars = []
         base_vars.append(("CUSTOMER-NAME", self.ctx.service.customer_name))
         base_vars.append(("SERVICE-ID", service_id := self.ctx.service.service_id))
-        base_vars.append(("VPN-ID", vpn_id := self.ctx.service.vpn_id))
+
+        # Allocate VPN ID from the resource manager. If the user entered a
+        # VPN ID into the service model, try and allocate that one, else,
+        # generate a new one
+        rma = Allocator(self.ctx.service)
+        vpn_id = (
+            rma
+            .id(request_id=self.ctx.service.vpn_id)
+            .pool('primary-vpn-pool')
+            .allocate(self.ctx.service.service_id)
+        )
+        self.ctx.service.vpn_id = vpn_id
+        self.ctx.log.info(f'Allocated VPN ID {vpn_id} from the resource manager')
+        base_vars.append(("VPN-ID", vpn_id))
+
         base_vars.append(("INET", self.ctx.service.inet))
         base_vars.append(("MAX-ROUTES", self.ctx.service.max_routes))
         base_vars.append(("MAX-ROUTES-WARNING", self.ctx.service.max_routes_warning))
@@ -201,7 +216,7 @@ class L3vpn:
         for device in self.ctx.service.provider_edge.device:
             self.ctx.log.info("Configuring device: ", device.name)
             self.device_ned_id = self.device.get_device_ned_id(device.name)
-            rd = f"{self.network.get_loopback_ip(device.name, 0)}:{self.ctx.service.vpn_id}"
+            rd = f"{self.network.get_loopback_ip(device.name, 0)}:{vpn_id}"
             vrf = self.network.get_vrf_name(device.name, service_id, vpn_id)
             base_vars.append(("DEVICE-NAME", device.name))
 
