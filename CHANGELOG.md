@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0](https://github.com/dbono711/nso-l3vpn/compare/v2.0.0...v2.1.0) (2026-04-13)
+
+
+### Features
+
+* Refactor L3VPN service and bump version ([7b8a575](https://github.com/dbono711/nso-l3vpn/commit/7b8a575b245897d04b5cbcac7202e2073b4888c8))
+* Refactor L3VPN service and bump version ([c3388cf](https://github.com/dbono711/nso-l3vpn/commit/c3388cf6fa1598ddbef1489c503fbdc9180e2043))
+
 ## [2.0.0](https://github.com/dbono711/nso-l3vpn/compare/v1.3.2...v2.0.0) (2026-04-12)
 
 
