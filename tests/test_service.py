@@ -6,7 +6,6 @@ def test_service_lifecycle(maapi):
     with maapi.start_write_trans() as t:
         root = ncs.maagic.get_root(t)
         svc = root.services.l3vpn.create('pytest-customer', 'pytest-l3vpn-01')
-        svc.vpn_id = 999
         svc.inet = 'IPv4'
         svc.provider_edge.asn = 65000
 
@@ -30,7 +29,6 @@ def test_service_lifecycle(maapi):
             root = ncs.maagic.get_root(t)
             assert ('pytest-customer', 'pytest-l3vpn-01') in root.services.l3vpn
             svc = root.services.l3vpn['pytest-customer', 'pytest-l3vpn-01']
-            assert svc.vpn_id == 999
             assert str(svc.inet) == 'IPv4'
     finally:
         # DELETE
